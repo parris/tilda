@@ -1,0 +1,12 @@
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Tilda.dll
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Tilda.pdb
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Tilda.dll.manifest
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Tilda.vsto
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Microsoft.Office.Tools.Common.v4.0.Utilities.dll
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\bin\Debug\Microsoft.Office.Tools.Common.v4.0.Utilities.xml
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\ResolveAssemblyReference.cache
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\Tilda.Properties.Resources.resources
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\GenerateResource.read.1.tlog
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\GenerateResource.write.1.tlog
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\Tilda.dll
+C:\xampp\htdocs\projects\wlb-builder\WLB Builder\Tilda\obj\Debug\Tilda.pdb
