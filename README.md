@@ -17,6 +17,7 @@ Q: How far along are you?
 A: Text is able to be grabbed, line breaks/wraps preserved. We have a script to pull out any mp4s, mp3s, jpgs from a ppt. We can do "Fade" animations on various shapes. We have unit tests with some mocks.
 
 Q: What do you need help with?  
+A: https://www.pivotaltracker.com/projects/536345/stories
 A: The portion that will always need to be refined (I think) is the textbox/placeholder shape "compiler".  
 A: A better way to export multimedia.  
 A: Integration with a video/audio player. Easy styling of this multimedia player. I've been using jPlayer. I need to integrate this more effectively.  
