@@ -51,7 +51,7 @@ namespace Tilda.Models
                 animationCount++;
             }
 
-            js += .toRaphJS(shapeMap, animationMap);
+            //js += .toRaphJS(shapeMap, animationMap);
 
             //animations via interaction, clicking
             /*foreach (PowerPoint.Sequence sequence in slide.TimeLine.InteractiveSequences){
