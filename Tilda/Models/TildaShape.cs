@@ -21,7 +21,7 @@ namespace Tilda.Models
         public int id = 0;
 
         /**
-         * Creates a new WBLShape Object from a powerpoint shape
+         * Creates a new TildaShape Object from a powerpoint shape
          * @param PowerPoint.Shape
          */
         public TildaShape(PowerPoint.Shape shape, int id = 0)

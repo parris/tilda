@@ -16,8 +16,9 @@ namespace Tilda.Models {
     class TildaTextbox : TildaShape {
         
         public String text = "";
+
         /**
-         * Creates a new WBLShape Object from a powerpoint shape
+         * Creates a new TildaShape Object from a powerpoint shape
          * @param PowerPoint.Shape
          */
         public TildaTextbox(PowerPoint.Shape shape, int id = 0): base(shape, id)
