@@ -15,6 +15,7 @@ namespace Tilda.Models
     class TildaSlide
     {
         public PowerPoint.Slide slide;
+        public int shapeCount = 0;
 
         public TildaSlide(PowerPoint.Slide slide)
         {
@@ -38,7 +39,10 @@ namespace Tilda.Models
             int count = 0;
 
             foreach (PowerPoint.Shape shape in slide.Shapes) {
-                shapeMap[shape.Id] = new TildaTextbox(shape,count);
+                if (shape.Type.Equals(Office.MsoShapeType.msoPlaceholder)||shape.Type.Equals(Office.MsoShapeType.msoTextBox)){
+                    shapeMap[shape.Id] = new TildaTextbox(shape,count);
+                } else if (shape.Type.Equals(Office.MsoShapeType.msoPicture))
+                    shapeMap[shape.Id = new TildaPicture(shape,count);
                 count++;
             }
             
@@ -50,6 +54,14 @@ namespace Tilda.Models
                 animationMap[animationCount] = new TildaAnimation(effect,shapeMap[effect.Shape.Id]);
                 animationCount++;
             }
+
+            foreach (TildaShape shape in shapeMap) {
+                if (shape == null)
+                    continue;
+                js += shape.toRaphJS(animationMap,this);
+            } 
+            
+            shapeCount = 0;
 
             //js += .toRaphJS(shapeMap, animationMap);
 

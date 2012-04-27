@@ -38,14 +38,14 @@ namespace Tilda.Models {
                 return "'x':" + (this.findX() + addx) + ", 'y':'" + (this.findY() + addy) + "', 'text-anchor': 'start'";
         }
 
-        public String position(float xOffset = 0, float yOffset = 0) {
+        public override String position(float xOffset = 0, float yOffset = 0) {
             return (this.findX() + xOffset) + "," + (this.findY() + yOffset);
         }
 
         /**
          * Find horizontal positioning
          */
-        public double findX() {
+        public override double findX() {
             float value = 0f;
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
                 value = scaler * (shape.Width / 2 + shape.TextFrame.MarginLeft + shape.Left);
@@ -57,7 +57,7 @@ namespace Tilda.Models {
         /**
          * Find Vertical positioning
          */
-        public double findY() {
+        public override double findY() {
             //vert positioning
             float value = 0f;
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
@@ -96,71 +96,72 @@ namespace Tilda.Models {
             return text;
         }
 
-        public static string toRaphJS(TildaShape[] shapeMap, TildaAnimation[] animationMap) {
+        public override string toRaphJS(TildaAnimation[] animationMap,TildaSlide slide) {
             String js = "";
-            int shapeCount = 0;
-            foreach (TildaTextbox shape in shapeMap) {
-                if (shape == null)
-                    continue;
-                double lineHeight = (shape.shape.TextFrame.TextRange.Font.Size + shape.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * shape.scaler;
-                double currentHeight;
-                if (shape.shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignLeft)
-                    currentHeight = shape.findY() + (float)(lineHeight / (1.5));
-                else
-                    currentHeight = shape.findY();
-                string font = shape.fontStyle();
-                string transform = shape.transformation();
-                double shapeX = shape.findX();
-                String[] parts = shape.text.Split(new string[] { "~|" }, StringSplitOptions.None);
-                for (int i = 0; i < parts.Length; i++) {
-                    String part = parts[i];
-                    TildaAnimation found = null;
-                    int shapeAnim = -1;
-                    string textboxAnims = "";
-                    //find animation
-                    foreach (TildaAnimation animation in animationMap)
-                        if (found == null && shape.shape.Id.Equals(animation.shape.shape.Id) && i == animation.effect.Paragraph - 1)
-                            found = animation;
+            double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
+            double currentHeight;
+            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignLeft)
+                currentHeight = this.findY() + (float)(lineHeight / (1.5));
+            else
+                currentHeight = this.findY();
+            string font = this.fontStyle();
+            string transform = this.transformation();
+            double shapeX = this.findX();
+            String[] parts = this.text.Split(new string[] { "~|" }, StringSplitOptions.None);
+            for (int i = 0; i < parts.Length; i++) {
+                String part = parts[i];
+                TildaAnimation found = null;
+                int shapeAnim = -1;
+                string textboxAnims = "";
+                //find animation
+                foreach (TildaAnimation animation in animationMap)
+                    if (found == null && this.shape.Id.Equals(animation.shape.shape.Id) && i == animation.effect.Paragraph - 1)
+                        found = animation;
 
-                    //is bullet? add some spacing...
-                    double xAdd = 0;
-                    bool hasBullet = false;
+                //is bullet? add some spacing...
+                double xAdd = 0;
+                bool hasBullet = false;
 
-                    if (part.Length > 0 && part[0] == '-') {
-                        hasBullet = true;
-                        float bulletSize = shape.shape.TextFrame.TextRange.Font.Size / 4 * shape.scaler;
-                        js += "shapes.push(paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
-                        if (found != null) {
-                            js += "shapes[" + shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
-                            shapeAnim = shapeCount;
-                        }
-                        xAdd += 30 * shape.scaler;
-                        part = part.Substring(3);
-                        shapeCount++;
+                if (part.Length > 0 && part[0] == '-') {
+                    hasBullet = true;
+                    float bulletSize = this.shape.TextFrame.TextRange.Font.Size / 4 * this.scaler;
+                    js += "shapes.push(paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
+                    if (found != null) {
+                        js += "shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
+                        shapeAnim = slide.shapeCount;
+                    }
+                    xAdd += 30 * this.scaler;
+                    part = part.Substring(3);
+                    slide.shapeCount++;
+                }
+
+                //split even more
+                String[] miniparts = part.Split('~');
+                foreach (String minipart in miniparts) {
+                    var fontpos = this.fontPosition((float)xAdd, (float)(currentHeight - this.findY()));
+                    String textbox = "shapes.push(paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
+
+                    if (found != null) {
+                        textbox += "shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
+                        textboxAnims += slide.shapeCount + ",";
                     }
 
-                    //split even more
-                    String[] miniparts = part.Split('~');
-                    foreach (String minipart in miniparts) {
-                        var fontpos = shape.fontPosition((float)xAdd, (float)(currentHeight - shape.findY()));
-                        String textbox = "shape.push(paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
+                    js += textbox;
+                    currentHeight += lineHeight;
+                    slide.shapeCount++;
+                }
 
-                        if (found != null) {
-                            textbox += "shape[" + shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
-                            textboxAnims += shapeCount + ",";
-                        }
+                //more bullet stuff
+                if (hasBullet)
+                    currentHeight += lineHeight / 3; // some extra amount
 
-                        js += textbox;
-                        currentHeight += lineHeight;
-                        shapeCount++;
-                    }
-
-                    //more bullet stuff
-                    if (hasBullet)
-                        currentHeight += lineHeight / 3; // some extra amount
-
-                    if (textboxAnims.Length > 0)
-                        js += "animations.push({'ids':[" + textboxAnims.Substring(1) + shapeAnim +"],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + "});";
+                if (textboxAnims.Length > 0) {
+                    string ids = textboxAnims;
+                    if (shapeAnim != -1)
+                        ids += shapeAnim;
+                    else
+                        ids = ids.Substring(0, ids.Length - 1);
+                    js += "animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + "});";
                 }
             }
             return js;

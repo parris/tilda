@@ -30,7 +30,7 @@ namespace Tilda.Models
             this.id = id;
         }
 
-        public String position(float xOffset = 0, float yOffset = 0)
+        public virtual String position(float xOffset = 0, float yOffset = 0)
         {
             return (this.findX()+xOffset) + "," + (this.findY()+yOffset);
         }
@@ -38,31 +38,23 @@ namespace Tilda.Models
         /**
          * Find horizontal positioning
          */
-        public double findX()
+        public virtual double findX()
         {
-            float value = 0f;
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                value = scaler * (shape.Width / 2 + shape.TextFrame.MarginLeft + shape.Left);
+                return (this.shape.Left + this.shape.Width) / 2 * scaler;
             else
-                value = scaler * (shape.Left + shape.TextFrame.MarginLeft);
-            return Math.Round(value);
+                return this.shape.Left * scaler;
         }
 
         /**
          * Find Vertical positioning
          */
-        public double findY()
+        public virtual double findY()
         {
-            //vert positioning
-            float value = 0f;
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                value = scaler * (shape.Height / 2 + shape.TextFrame.MarginTop + shape.Top);
-            else if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignJustifyLow)
-                value = scaler * (shape.Height - shape.TextFrame.MarginTop + shape.Top);
+                return (this.shape.Top+this.shape.Height)/2 * scaler;
             else
-                value = scaler * (shape.Top + shape.TextFrame.MarginTop);
-
-            return Math.Round(value);
+                return this.shape.Top * scaler;
         }
 
         /**
@@ -172,7 +164,7 @@ namespace Tilda.Models
                 return "unknownshape" + shape.Id;
         }
 
-        public String toRaphJS() {
+        public virtual String toRaphJS(TildaAnimation[] animationMap, TildaSlide slide) {
             return "";
         }
     }

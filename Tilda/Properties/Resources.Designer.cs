@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Tilda.Properties {
+    using System;
     
     
     /// <summary>
@@ -56,6 +57,27 @@ namespace Tilda.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        internal static System.Drawing.Bitmap _137_presentation {
+            get {
+                object obj = ResourceManager.GetObject("137-presentation", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap _41_picture_frame {
+            get {
+                object obj = ResourceManager.GetObject("41-picture-frame", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap _74_location {
+            get {
+                object obj = ResourceManager.GetObject("74-location", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
