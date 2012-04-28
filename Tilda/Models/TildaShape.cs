@@ -40,10 +40,7 @@ namespace Tilda.Models
          */
         public virtual double findX()
         {
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                return (this.shape.Left + this.shape.Width) / 2 * scaler;
-            else
-                return this.shape.Left * scaler;
+            return this.shape.Left * scaler;
         }
 
         /**
@@ -51,10 +48,7 @@ namespace Tilda.Models
          */
         public virtual double findY()
         {
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                return (this.shape.Top+this.shape.Height)/2 * scaler;
-            else
-                return this.shape.Top * scaler;
+            return this.shape.Top * scaler;
         }
 
         /**
