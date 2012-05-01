@@ -28,19 +28,28 @@ Presentation.prototype.play = function() {
 }
 
 Presentation.prototype.next = function() {
-    if (this.slides.length > currentSlide + 1) {
+    if (this.slides.length > this.currentSlide + 1) {
         this.currentSlide++;
-        this.paper.clear();
+        this.clearSlide();
         this.slides[this.currentSlide]();
+        this.checkNextAnimations();
+
     }
 }
 
 Presentation.prototype.prev = function() {
-    if (currentSlide - 1 > 0) {
+    if (this.currentSlide - 1 > 0) {
         this.currentSlide--;
-        this.paper.clear();
+        this.clearSlide();
         this.slides[this.currentSlide]();
+        this.checkNextAnimations();
     }
+}
+
+Presentation.prototype.clearSlide = function() {
+    this.paper.clear();
+    this.shapes = new Array();
+    this.animations = new Array();
 }
 
 /**

@@ -19,6 +19,7 @@ namespace Tilda {
         }
 
         private void exportTildaSlide_Click(object sender, RibbonControlEventArgs e) {
+            setUpFolders();
             PowerPoint.Slide currentSlide = Settings.ActiveSlide();
             TildaSlide slide = new TildaSlide(currentSlide);
             export("preso.slides.push(" + slide.exportSlide() + ");");
@@ -38,6 +39,7 @@ namespace Tilda {
                     TildaSlide slide = new TildaSlide(currentSlide);
                     js += "preso.slides.push(" + slide.exportSlide() + ");";
                 }
+                export(js);
                 MessageBox.Show("Saved :)");
             } else if(type == PowerPoint.PpSelectionType.ppSelectionShapes) {
                 /*PowerPoint.Slide currentSlide = Settings.ActiveSlide();
@@ -47,7 +49,6 @@ namespace Tilda {
 
                 MessageBox.Show("You can only export slides right now via selection");
             }
-            export(js);
             cleanUpFolders();
         }
 

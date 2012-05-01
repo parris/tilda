@@ -18,7 +18,7 @@ namespace Tilda.Models
     class TildaSlide
     {
         public PowerPoint.Slide slide;
-        public PowerPoint.Selection shapesRange;
+        //public PowerPoint.Selection shapesRange;
         public int shapeCount = 0;
 
         public TildaSlide(PowerPoint.Slide slide)
@@ -28,19 +28,19 @@ namespace Tilda.Models
 
         public String exportSlide(){
             String js = "function(){";
+            Dictionary<int, TildaShape> shapeMap = new Dictionary<int, TildaShape>(slide.Shapes.Count);
+            List<PowerPoint.Shape> shapes = sortShapesByZIndex(slide.Shapes);
+            //js+=this.exportBackgroundImage();
 
-            //need to maintain id numbers of shapes. Shape id numbers include deleted shapes in indexing
-            //We can settle for 5* the shape count for now. Too lazy to do it another way for now
-            TildaShape[] shapeMap = new TildaShape[slide.Shapes.Count * 5]; 
-
-            //shapes
+            //shapes, new count+1 for background
             int count = 0;
 
-            foreach (PowerPoint.Shape shape in slide.Shapes) {
+
+            foreach (PowerPoint.Shape shape in shapes) {
                 if (shape.Type.Equals(Office.MsoShapeType.msoPlaceholder)||shape.Type.Equals(Office.MsoShapeType.msoTextBox)){
-                    shapeMap[shape.Id] = new TildaTextbox(shape,count);
+                    shapeMap.Add(shape.Id, new TildaTextbox(shape, count));
                 } else //if (shape.Type.Equals(Office.MsoShapeType.msoPicture))
-                    shapeMap[shape.Id] = new TildaPicture(shape,count); //for now everything else can be an image!
+                    shapeMap.Add(shape.Id, new TildaPicture(shape, count)); //for now everything else can be an image!
                 count++;
             }
             
@@ -53,7 +53,7 @@ namespace Tilda.Models
                 animationCount++;
             }
 
-            foreach (TildaShape shape in shapeMap) {
+            foreach (TildaShape shape in shapeMap.Values) {
                 if (shape == null)
                     continue;
                 js += shape.toRaphJS(animationMap,this);
@@ -76,6 +76,35 @@ namespace Tilda.Models
 
             //html += "</div>";
             return js;
+        }
+
+        private List<Shape> sortShapesByZIndex(PowerPoint.Shapes shapes){
+            List<Shape> ordered = new List<Shape>();
+            foreach(PowerPoint.Shape shape in shapes)
+                ordered.Add(shape);
+
+            ordered.Sort(new ZIndexShapeComparer());
+            return ordered;
+        }
+
+        private String exportBackgroundImage() {
+            String backgroundFileName = Settings.NextRandomValue() + "-" + Settings.NextRandomValue() + "-bg.png";
+            String backgroundSavePath = Settings.outputMediaFullPath + Path.DirectorySeparatorChar + backgroundFileName;
+
+            slide.Background.Export(backgroundSavePath, PowerPoint.PpShapeFormat.ppShapeFormatPNG,
+                (int)Settings.PresentationWidth() * 2, (int)Settings.PresentationHeight() * 2, PowerPoint.PpExportMode.ppScaleToFit);//widht&height*2 to support up 2x the size
+            return "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)Settings.PresentationWidth() + "," + (int)Settings.PresentationHeight() + "));";
+        }
+
+        private class ZIndexShapeComparer : IComparer<PowerPoint.Shape> {
+            public int Compare(PowerPoint.Shape x, PowerPoint.Shape y) {
+                if(x.ZOrderPosition > y.ZOrderPosition)
+                    return 1;
+                else if(x.ZOrderPosition < y.ZOrderPosition)
+                    return -1;
+                else
+                    return 0;
+            }
         }
     }
 }

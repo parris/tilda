@@ -24,7 +24,7 @@ namespace Tilda.Models {
         }
 
         public override string toRaphJS(TildaAnimation[] animationMap, TildaSlide slide) {
-            String fileName = (new Random(Int32.MaxValue)).Next().ToString() + "-image.png";
+            String fileName = Settings.NextRandomValue() + "-" + Settings.NextRandomValue() + "-image.png";
             String savePath = Settings.outputMediaFullPath + Path.DirectorySeparatorChar + fileName;
 
             this.shape.Export(savePath, PowerPoint.PpShapeFormat.ppShapeFormatPNG,

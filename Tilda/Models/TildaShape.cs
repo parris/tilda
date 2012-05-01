@@ -59,6 +59,8 @@ namespace Tilda.Models
          */
         public String rgbToHex(int rgb)
         {
+            if(rgb < 0) //safeguard from weird stuff
+                return "#000000";
             int blue = (rgb/65536);
             int green = ((rgb - (65536 * blue)) / 256);
             int red = rgb - ((blue * 65536) + (green * 256));

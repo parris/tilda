@@ -34,6 +34,8 @@ namespace Tilda.Models {
         public String fontPosition(float addx = 0, float addy = 0) {
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
                 return "'cx':" + (this.findX() + addx) + ", 'cy':'" + (this.findY() + addy) + "', 'text-anchor': 'middle'";
+            else if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignRight)
+                return "'x':" + (this.findX() + addx) + ", 'y':'" + (this.findY() + addy) + "', 'text-anchor': 'end'";
             else
                 return "'x':" + (this.findX() + addx) + ", 'y':'" + (this.findY() + addy) + "', 'text-anchor': 'start'";
         }
@@ -49,6 +51,8 @@ namespace Tilda.Models {
             float value = 0f;
             if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
                 value = scaler * (shape.Width / 2 + shape.TextFrame.MarginLeft + shape.Left);
+            else if(shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignRight)
+                value = scaler * (shape.Left + shape.Width - shape.TextFrame.MarginRight);
             else
                 value = scaler * (shape.Left + shape.TextFrame.MarginLeft);
             return Math.Round(value);
@@ -114,15 +118,19 @@ namespace Tilda.Models {
                 int shapeAnim = -1;
                 string textboxAnims = "";
                 //find animation
-                foreach (TildaAnimation animation in animationMap)
-                    if (found == null && this.shape.Id.Equals(animation.shape.shape.Id) && i == animation.effect.Paragraph - 1)
-                        found = animation;
+                foreach(TildaAnimation animation in animationMap) {
+                    try {
+                        if(found == null && this.shape.Id.Equals(animation.shape.shape.Id) && i == animation.effect.Paragraph - 1)
+                            found = animation;
+                    } catch(Exception e) { } // this is obviously not the animation we are looking for; however, just throw it away rather than complaining
+                }
 
                 //is bullet? add some spacing...
                 double xAdd = 0;
                 bool hasBullet = false;
 
                 if (part.Length > 0 && part[0] == '-') {
+                    currentHeight += (lineHeight / 3)/2; // some extra amount,before
                     hasBullet = true;
                     float bulletSize = this.shape.TextFrame.TextRange.Font.Size / 4 * this.scaler;
                     js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
@@ -142,7 +150,7 @@ namespace Tilda.Models {
                     String textbox = "preso.shapes.push(preso.paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
 
                     if (found != null) {
-                        textbox += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
+                        textbox += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0,'opacity':0});";
                         textboxAnims += slide.shapeCount + ",";
                     }
 
@@ -153,7 +161,7 @@ namespace Tilda.Models {
 
                 //more bullet stuff
                 if (hasBullet)
-                    currentHeight += lineHeight / 3; // some extra amount
+                    currentHeight += (lineHeight / 3) / 2; // some extra amount,after
 
                 if (textboxAnims.Length > 0) {
                     string ids = textboxAnims;
@@ -161,7 +169,7 @@ namespace Tilda.Models {
                         ids += shapeAnim;
                     else
                         ids = ids.Substring(0, ids.Length - 1);
-                    js += "preso.animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1}});";
+                    js += "preso.animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1,'opacity':1}});";
                 }
             }
             return js;

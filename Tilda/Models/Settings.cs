@@ -20,6 +20,7 @@ namespace Tilda.Models {
         public static String outputPath = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory) + Path.DirectorySeparatorChar + "temp";
         public static String outputMediaPath = "assets";
         public static String outputMediaFullPath = outputPath + Path.DirectorySeparatorChar + outputMediaPath;
+        private static Random rand = new Random(Int32.MaxValue);
         
         //you shouldn't modify anything below
 
@@ -49,6 +50,10 @@ namespace Tilda.Models {
          */
         public static int PresentationHeight() {
             return (int)ActivePresentation().PageSetup.SlideHeight * 2;
+        }
+
+        public static String NextRandomValue() {
+            return rand.Next().ToString();
         }
     }
 }
