@@ -1,4 +1,4 @@
-Somethings work now: You can export a slide, but bullets don't quite work right. Everything other than textboxes and placeholders are exported out as images. Audio will not export yet!
+Somethings work now: You can export a slide/presentation, but bullets don't quite work right. Everything other than textboxes and placeholders are exported out as images. Audio will not export yet!
 
 Tilda
 =====
