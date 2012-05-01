@@ -1,4 +1,13 @@
-Somethings work now: You can export a slide/presentation, but bullets don't quite work right. Everything other than textboxes and placeholders are exported out as images. Audio will not export yet!
+What works:
+- Text Export, with some alignment features
+- All other shapes export as images 
+- Opacity based animations work, but only in "after previous" mode and all are simplified to a simple linear transition   
+- Z-ordering  
+- Presentation export  
+- Single Level Bulleting (bullet char not preserved yet)  
+
+What needs work:
+- https://www.pivotaltracker.com/projects/536345/stories  
 
 Tilda
 =====
