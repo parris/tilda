@@ -125,9 +125,9 @@ namespace Tilda.Models {
                 if (part.Length > 0 && part[0] == '-') {
                     hasBullet = true;
                     float bulletSize = this.shape.TextFrame.TextRange.Font.Size / 4 * this.scaler;
-                    js += "shapes.push(paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
+                    js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
                     if (found != null) {
-                        js += "shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
+                        js += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
                         shapeAnim = slide.shapeCount;
                     }
                     xAdd += 30 * this.scaler;
@@ -139,10 +139,10 @@ namespace Tilda.Models {
                 String[] miniparts = part.Split('~');
                 foreach (String minipart in miniparts) {
                     var fontpos = this.fontPosition((float)xAdd, (float)(currentHeight - this.findY()));
-                    String textbox = "shapes.push(paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
+                    String textbox = "preso.shapes.push(preso.paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
 
                     if (found != null) {
-                        textbox += "shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
+                        textbox += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
                         textboxAnims += slide.shapeCount + ",";
                     }
 
@@ -161,7 +161,7 @@ namespace Tilda.Models {
                         ids += shapeAnim;
                     else
                         ids = ids.Substring(0, ids.Length - 1);
-                    js += "animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + "});";
+                    js += "preso.animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1}});";
                 }
             }
             return js;

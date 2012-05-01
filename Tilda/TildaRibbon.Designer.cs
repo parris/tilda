@@ -57,6 +57,7 @@
             this.exportTildaShape.Label = "Selected";
             this.exportTildaShape.Name = "exportTildaShape";
             this.exportTildaShape.ShowImage = true;
+            this.exportTildaShape.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportTildaShape_Click);
             // 
             // exportTildaSlide
             // 
@@ -72,6 +73,7 @@
             this.exportTildaPresentation.Label = "Presentation";
             this.exportTildaPresentation.Name = "exportTildaPresentation";
             this.exportTildaPresentation.ShowImage = true;
+            this.exportTildaPresentation.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.exportTildaPresentation_Click);
             // 
             // TildaRibbon
             // 
