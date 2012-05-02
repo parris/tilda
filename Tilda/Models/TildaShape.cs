@@ -27,6 +27,7 @@ namespace Tilda.Models
         public TildaShape(PowerPoint.Shape shape, int id = 0)
         {
             this.shape = shape;
+            this.scaler = Settings.scaler;
             this.id = id;
         }
 

@@ -30,7 +30,6 @@ namespace Tilda.Models
             String js = "function(){";
             Dictionary<int, TildaShape> shapeMap = new Dictionary<int, TildaShape>(slide.Shapes.Count);
             List<PowerPoint.Shape> shapes = sortShapesByZIndex(slide.Shapes);
-            //js+=this.exportBackgroundImage();
 
             //shapes, new count+1 for background
             int count = 0;
@@ -59,7 +58,9 @@ namespace Tilda.Models
                 js += shape.toRaphJS(animationMap,this);
             }
 
+            js += this.exportBackgroundImage(shapes);
             shapeCount = 0;
+
             js += "}";
 
             //js += .toRaphJS(shapeMap, animationMap);
@@ -87,13 +88,30 @@ namespace Tilda.Models
             return ordered;
         }
 
-        private String exportBackgroundImage() {
+        private String exportBackgroundImage(List<PowerPoint.Shape> shapes) {
+            List<Shape> toBeUnhidden = new List<Shape>();
+
+            foreach(PowerPoint.Shape shape in shapes) {
+                //hide shapes that are not hidden
+                if(shape.Visible == Office.MsoTriState.msoTrue) {
+                    toBeUnhidden.Add(shape);
+                    shape.Visible = Office.MsoTriState.msoFalse;
+                }
+            }
+
             String backgroundFileName = Settings.NextRandomValue() + "-" + Settings.NextRandomValue() + "-bg.png";
             String backgroundSavePath = Settings.outputMediaFullPath + Path.DirectorySeparatorChar + backgroundFileName;
 
-            slide.Background.Export(backgroundSavePath, PowerPoint.PpShapeFormat.ppShapeFormatPNG,
-                (int)Settings.PresentationWidth() * 2, (int)Settings.PresentationHeight() * 2, PowerPoint.PpExportMode.ppScaleToFit);//widht&height*2 to support up 2x the size
-            return "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)Settings.PresentationWidth() + "," + (int)Settings.PresentationHeight() + "));";
+            slide.Export(backgroundSavePath, "PNG",
+                (int)(Settings.PresentationWidth() * 2), (int)(Settings.PresentationHeight() * 2));
+            String js = "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)(Settings.PresentationWidth() / 2 * Settings.scaler) + "," + (int)(Settings.PresentationHeight() / 2 * Settings.scaler) + "));";
+            js += "preso.shapes["+this.shapeCount+"].toBack();";
+
+            //return shapes back to normal
+            foreach(PowerPoint.Shape shape in toBeUnhidden)
+                shape.Visible = Office.MsoTriState.msoTrue;
+
+            return js;
         }
 
         private class ZIndexShapeComparer : IComparer<PowerPoint.Shape> {

@@ -22,6 +22,7 @@ namespace Tilda {
             setUpFolders();
             PowerPoint.Slide currentSlide = Settings.ActiveSlide();
             TildaSlide slide = new TildaSlide(currentSlide);
+            System.IO.File.WriteAllText(Settings.outputPath + Path.DirectorySeparatorChar + "settings.js", Settings.PresoSettingsToJS());
             export("preso.slides.push(" + slide.exportSlide() + ");");
             cleanUpFolders();
             MessageBox.Show("Saved :)");
@@ -29,6 +30,9 @@ namespace Tilda {
 
         private void exportTildaShape_Click(object sender, RibbonControlEventArgs e) {
             setUpFolders();
+
+            System.IO.File.WriteAllText(Settings.outputPath + Path.DirectorySeparatorChar + "settings.js", Settings.PresoSettingsToJS());
+
             String js = "";
             PowerPoint.PpSelectionType type = Globals.ThisAddIn.Application.ActiveWindow.Selection.Type;
             if (type == PowerPoint.PpSelectionType.ppSelectionNone ||
@@ -56,7 +60,8 @@ namespace Tilda {
             PowerPoint.Presentation currentPreso = Settings.ActivePresentation();
 
             setUpFolders();
-            String js = "";
+            System.IO.File.WriteAllText(Settings.outputPath + Path.DirectorySeparatorChar + "settings.js", Settings.PresoSettingsToJS());
+            String js = Settings.PresoSettingsToJS();
             foreach(PowerPoint.Slide currentSlide in currentPreso.Slides) {
                 TildaSlide slide = new TildaSlide(currentSlide);
                 js += "preso.slides.push(" + slide.exportSlide() + ");";
@@ -83,6 +88,7 @@ namespace Tilda {
             using (ZipFile zip = new ZipFile()) {
                 //make zip file
                 //add content
+                zip.AddFile(path + Path.DirectorySeparatorChar + "settings.js", "");
                 zip.AddFile(path + Path.DirectorySeparatorChar + "content.js", "");
                 zip.AddDirectory(path + Path.DirectorySeparatorChar + "assets", "assets");
 

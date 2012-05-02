@@ -21,6 +21,7 @@ namespace Tilda.Models {
         public static String outputMediaPath = "assets";
         public static String outputMediaFullPath = outputPath + Path.DirectorySeparatorChar + outputMediaPath;
         private static Random rand = new Random(Int32.MaxValue);
+        public static float scaler = 1.4f;
         
         //you shouldn't modify anything below
 
@@ -54,6 +55,10 @@ namespace Tilda.Models {
 
         public static String NextRandomValue() {
             return rand.Next().ToString();
+        }
+
+        public static String PresoSettingsToJS() {
+            return "var settings = {'width':"+PresentationWidth()+",'height':"+PresentationHeight()+"};";
         }
     }
 }

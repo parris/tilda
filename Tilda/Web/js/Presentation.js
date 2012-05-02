@@ -22,8 +22,12 @@ Presentation.prototype.playNextAnimation = function() {
             preso.shapes[anim.ids[i]].animate(anim.animate, anim.dur);
 }
 
-Presentation.prototype.play = function() {
-    this.slides[0]();
+Presentation.prototype.play = function (slideNum) {
+    this.clearSlide();
+    if (typeof slideNum !== "undefined")
+        this.slides[parseInt(slideNum)]();
+    else
+        this.slides[0]();
     this.currentSlide = 0;
 }
 
@@ -73,15 +77,40 @@ Presentation.resize = function() {
     preso.paper.setViewBox(0, 0, 1024, 768, true);
 }
 
+Presentation.getFromUrl = function(key,queryStr,delim,equal) {
+    if (queryStr == null)
+        queryStr = window.location.search;
+    if (queryStr.indexOf("?") == 0)
+        queryStr = queryStr.substring(1, queryStr.length);
+    if (delim == null)
+        delim = "&"
+    if (equal == null)
+        equal = "="
+
+    if (queryStr.indexOf(key) != -1) {
+        var ary1 = queryStr.split(delim);
+        for (var i = 0; i < ary1.length; i++) {
+            var ary2 = ary1[i].split(equal)
+            if (ary2[0] == key) {
+                return ary1[i].substring((ary1[i].indexOf(equal) + 1), ary1[i].length);
+            }
+        }
+    }
+    return null;
+}
+
 $(function() {
-    $(window).resize(function() {
+    $(window).resize(function () {
         Presentation.resize();
     });
-    window.preso = new Presentation("holder", "1024", "768");
+    window.preso = new Presentation("holder", window.settings.width, window.settings.height);
     $.getScript("content.js", function() {
         preso.paper.setStart();
-        //start up first slide
-        preso.play();
+        var startOn = Presentation.getFromUrl("slide");
+        if (startOn == null) //start up first slide
+            preso.play();
+        else
+            preso.play(startOn);
         //run animations
         preso.checkNextAnimations();
         //wrap up the paper
