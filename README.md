@@ -7,7 +7,11 @@ What works:
 - Single Level Bulleting (bullet char not preserved yet)  
 
 What needs work:
-- https://www.pivotaltracker.com/projects/536345/stories  
+- https://www.pivotaltracker.com/projects/536345/stories 
+
+Issues:
+- http://code.google.com/p/chromium/issues/detail?id=125608
+   - In chrome, resizing is a little funky for some reason. This does not occur in firefox or IE. I believe their implementation of svg is having some issues.
 
 Tilda
 =====
