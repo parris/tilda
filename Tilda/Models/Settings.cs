@@ -21,7 +21,6 @@ namespace Tilda.Models {
         public static String outputMediaPath = "assets";
         public static String outputMediaFullPath = outputPath + Path.DirectorySeparatorChar + outputMediaPath;
         private static Random rand = new Random(Int32.MaxValue);
-        public static float scaler = 1.4f;
         
         //you shouldn't modify anything below
 
@@ -29,14 +28,22 @@ namespace Tilda.Models {
          * @returns PowerPoint.Presention the current presentation object
          */
         public static PowerPoint.Presentation ActivePresentation() {
-            return Globals.ThisAddIn.Application.ActiveWindow.Presentation;
+            try {
+                return Globals.ThisAddIn.Application.ActiveWindow.Presentation;
+            } catch(Exception e) {
+                return new MockPresentation(); //debug mode/no preso/good luck kids
+            }
         }
 
         /**
          * @returns PowerPoint.Slide the current slide object
          */
         public static PowerPoint.Slide ActiveSlide() {
-            return Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
+            try {
+                return Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
+            } catch(Exception e) {
+                return new MockSlide();
+            }
         }
 
         /**
@@ -51,6 +58,18 @@ namespace Tilda.Models {
          */
         public static int PresentationHeight() {
             return (int)ActivePresentation().PageSetup.SlideHeight * 2;
+        }
+
+        public static float Scaler() {
+            //we need some formula here. right now we support 16:9 and 4:3
+            //TODO: find appropriate formula if possible
+            float ratio = (float)PresentationWidth() / (float)PresentationHeight();
+            if(ratio - 1.33333 < .001)
+                return 1.4f;
+            else if(ratio - 1.77777 < .001)
+                return 2.0f;
+            else
+                return 1.6f;
         }
 
         public static String NextRandomValue() {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Office.Interop.PowerPoint;
 
-namespace WBLTests.Mocks
+namespace TildaTests.Mocks
 {
     class MockShapes : Shapes
     {

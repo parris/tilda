@@ -104,7 +104,7 @@ namespace Tilda.Models
 
             slide.Export(backgroundSavePath, "PNG",
                 (int)(Settings.PresentationWidth() * 2), (int)(Settings.PresentationHeight() * 2));
-            String js = "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)(Settings.PresentationWidth() / 2 * Settings.scaler) + "," + (int)(Settings.PresentationHeight() / 2 * Settings.scaler) + "));";
+            String js = "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)(Settings.PresentationWidth()) + "," + (int)(Settings.PresentationHeight()) + "));";
             js += "preso.shapes["+this.shapeCount+"].toBack();";
 
             //return shapes back to normal

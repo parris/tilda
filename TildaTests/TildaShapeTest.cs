@@ -1,11 +1,12 @@
 ﻿using Tilda.Models;
+using TildaTests;
+using TildaTests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.Office.Interop.PowerPoint;
-using WBLTests.Mocks;
 using System.Drawing;
 
-namespace Tilda.Tests
+namespace TildaTests
 {
     
     
@@ -14,8 +15,7 @@ namespace Tilda.Tests
     ///to contain all TildaShapeTest Unit Tests
     ///</summary>
     [TestClass()]
-    public class TildaShapeTest
-    {
+    public class TildaShapeTest {
 
 
         private TestContext testContextInstance;
@@ -24,14 +24,11 @@ namespace Tilda.Tests
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.
         ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
+        public TestContext TestContext {
+            get {
                 return testContextInstance;
             }
-            set
-            {
+            set {
                 testContextInstance = value;
             }
         }
@@ -67,52 +64,32 @@ namespace Tilda.Tests
         #endregion
 
 
+
+
+
         /// <summary>
         ///A test for TildaShape Constructor
         ///</summary>
         [TestMethod()]
-        public void TildaShapeConstructorTest()
-        {
-            Shape shape = new MockShape(); 
-            TildaShape target = new TildaShape(shape);
-            Assert.AreEqual(shape, target.shape);
-        }
-
-        /// <summary>
-        ///A test for cssFont
-        ///</summary>
-        [TestMethod()]
-        public void cssFontTest()
-        {
-            //create Shape
+        public void TildaShapeConstructorTest() {
             Shape shape = new MockShape();
-            //set attributes
-            shape.TextEffect.FontName = "Arial";
-            shape.TextEffect.FontSize = 16;
-            shape.Fill.ForeColor.RGB = 0;
-
-            //compare
-            //String expected = "font-style:Arial;font-size:16px;color:#000000;";
-            String expected = "'font-style':'Arial','font-size':'16','color':'#000000'";
-            TildaShape target = new TildaShape(shape);
-            String actual = target.fontStyle();
-            Assert.AreEqual(expected, actual);
+            TildaShape target = new TildaShape(shape,0);
+            Assert.AreEqual(shape, target.shape);
+            Assert.AreEqual(Settings.Scaler(), target.scaler);
+            Assert.AreEqual(0, target.id);
         }
 
         /// <summary>
         ///A test for cssRotation
         ///</summary>
         [TestMethod()]
-        public void cssRotationTest()
-        {
+        public void RotationTest() {
             //create Shape
             Shape shape = new MockShape();
             shape.Rotation = 90;
             //set attributes
 
             //compare
-            /*var expected = "-moz-transform:rotate(90deg);-webkit-transform:rotate(90deg);-o-transform:rotate(90deg);-ms-transform:rotate(90deg);"
-                      + "filter:progid:DXImageTransform.Micrsoft.BasicImage(rotation=1);";*/
             String expected = "'transformation':'r90'";
             TildaShape target = new TildaShape(shape);
             String actual = target.transformation();
@@ -120,93 +97,23 @@ namespace Tilda.Tests
         }
 
         /// <summary>
-        ///A test for cssSizePosition
-        ///</summary>
-        [TestMethod()]
-        public void cssSizePositionTest()
-        {
-            //create Shape
-            Shape shape = new MockShape();
-            shape.Width = 100;
-            shape.Height = 100;
-            shape.Top = 2;
-            shape.Left = 10;
-            //set attributes
-
-            //compare
-            var expected = "top:" + shape.Top + "px;left:" + shape.Left + "px;width:" + shape.Width + "px;height:" + shape.Height + "px;";
-            TildaShape target = new TildaShape(shape);
-            String actual = target.cssSizePosition();
-            Assert.AreEqual(expected, actual);
-        }
-
-        /// <summary>
-        ///A test for extractTextBox
-        ///</summary>
-        [TestMethod()]
-        public void extractTextBoxTest()
-        {
-            //create Shape
-            Shape shape = new MockShape();
-            //set attributes
-            shape.Width = 100;
-            shape.Height = 100;
-            shape.Top = 2;
-            shape.Left = 10;
-            shape.Rotation = 90;
-            shape.TextEffect.FontName = "Arial";
-            shape.TextEffect.FontSize = 16;
-            shape.TextEffect.Text = "Title";
-            shape.Fill.ForeColor.RGB = 0;
-
-            //compare
-            /*String font = "font-style:Arial;font-size:16px;color:#000000;";
-            String deg = "-moz-transform:rotate(90deg);-webkit-transform:rotate(90deg);-o-transform:rotate(90deg);-ms-transform:rotate(90deg);"
-                      + "filter:progid:DXImageTransform.Micrsoft.BasicImage(rotation=1);";
-            String pos = "top:" + shape.Top + "px;left:" + shape.Left + "px;width:" + shape.Width + "px;height:" + shape.Height + "px;";
-            String expected = "<div class=\"ppt-textbox\" style=\"" + font + pos + deg + "\">Title<div>";*/
-            String expected = "var testing = paper.text(2,10,'').attr({'font-style':'Arial','font-size':'16','color':'#000000','transformation':'r90'});";
-            TildaShape target = new TildaShape(shape);
-            String actual = target.readText();
-            Assert.AreEqual(expected, actual);
-        }
-
-        /// <summary>
         ///A test for rgbToHex
         ///</summary>
         [TestMethod()]
-        public void rgbToHexTest()
-        {
+        public void rgbToHexTest() {
             TildaShape s = new TildaShape(new MockShape());
             Assert.AreEqual("#ffffff", s.rgbToHex(16777215));
-            Assert.AreEqual("#7b72de", s.rgbToHex(8090334));
-            Assert.AreEqual("#e772de", s.rgbToHex(15168222));
+            Assert.AreEqual("#de727b", s.rgbToHex(8090334));
+            Assert.AreEqual("#de72e7", s.rgbToHex(15168222));
         }
 
-        /// <summary>
-        ///A test for extractMP3
-        ///</summary>
-        [TestMethod()]
-        public void extractMP3Test()
-        {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            TildaShape target = new TildaShape(shape); // TODO: Initialize to an appropriate value
-            string directory = string.Empty; // TODO: Initialize to an appropriate value
-            //bool expected = false; // TODO: Initialize to an appropriate value
-            //bool actual;
-            //actual = target.extractMP3(directory);
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
-        }
-        
         /// <summary>
         ///A test for name
         ///</summary>
         [TestMethod()]
-        public void nameTest()
-        {
+        public void nameTest() {
             TildaShape shape = new TildaShape(new MockShape(Microsoft.Office.Core.MsoShapeType.msoAutoShape));
-            Assert.AreEqual(true,shape.name().Contains("autoshape"));
+            Assert.AreEqual(true, shape.name().Contains("autoshape"));
             shape = new TildaShape(new MockShape(Microsoft.Office.Core.MsoShapeType.msoCallout));
             Assert.AreEqual(true, shape.name().Contains("callout"));
             shape = new TildaShape(new MockShape(Microsoft.Office.Core.MsoShapeType.msoCanvas));
@@ -255,6 +162,70 @@ namespace Tilda.Tests
             Assert.AreEqual(true, shape.name().Contains("table"));
             shape = new TildaShape(new MockShape(Microsoft.Office.Core.MsoShapeType.msoTextBox));
             Assert.AreEqual(true, shape.name().Contains("textbox"));
+        }
+
+        /// <summary>
+        ///A test for findX
+        ///</summary>
+        [TestMethod()]
+        public void findXTest() {
+            Shape shape = new MockShape();
+            shape.Left = 50.3f;
+            int id = 0; 
+            TildaShape target = new TildaShape(shape, id);
+            double expected = shape.Left * Settings.Scaler(); 
+            double actual;
+            actual = target.findX();
+            double difference = expected - actual;
+            Assert.IsTrue(difference <= .00001);
+        }
+
+        /// <summary>
+        ///A test for findY
+        ///</summary>
+        [TestMethod()]
+        public void findYTest() {
+            Shape shape = new MockShape();
+            shape.Top = 50.3f;
+            int id = 0;
+            TildaShape target = new TildaShape(shape, id);
+            double expected = shape.Top * Settings.Scaler();
+            double actual;
+            actual = target.findY();
+            double difference = expected - actual;
+            Assert.IsTrue(difference <= .00001);
+        }
+
+        /// <summary>
+        ///A test for position
+        ///</summary>
+        [TestMethod()]
+        public void positionTest() {
+            Shape shape = new MockShape();
+            shape.Left = 30f;
+            shape.Top = 55f;
+            int id = 5; 
+            TildaShape target = new TildaShape(shape, id);
+            string expected = (double)(shape.Left * Settings.Scaler()) + "," + (double)(shape.Top * Settings.Scaler()); 
+            string actual;
+            actual = target.position();
+            Assert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        ///A test for toRaphJS
+        ///</summary>
+        [TestMethod()]
+        public void toRaphJSTest() {
+            Shape shape = new MockShape();
+            int id = 0; 
+            TildaShape target = new TildaShape(shape, id);
+            TildaAnimation[] animationMap = null; 
+            TildaSlide slide = null;
+            string expected = string.Empty;
+            string actual;
+            actual = target.toRaphJS(animationMap, slide);
+            Assert.AreEqual(expected, actual);
         }
     }
 }

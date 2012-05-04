@@ -133,12 +133,16 @@ namespace Tilda.Models {
                     currentHeight += (lineHeight / 3)/2; // some extra amount,before
                     hasBullet = true;
                     float bulletSize = this.shape.TextFrame.TextRange.Font.Size / 4 * this.scaler;
-                    js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
+                    //if bullet is not at level 1 figure out how much space to add
+                    int bulletXSpace = 0;
+                    if(Int32.Parse(part[1] + "") > 1)
+                        bulletXSpace += 30 * Int32.Parse(part[1] + "");
+                    js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5 + bulletXSpace) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
                     if (found != null) {
                         js += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
                         shapeAnim = slide.shapeCount;
                     }
-                    xAdd += 30 * this.scaler;
+                    xAdd += (30 * this.scaler) * Int32.Parse(""+part[1]);
                     part = part.Substring(3);
                     slide.shapeCount++;
                 }

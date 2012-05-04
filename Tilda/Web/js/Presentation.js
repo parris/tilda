@@ -22,7 +22,7 @@ Presentation.prototype.playNextAnimation = function() {
             preso.shapes[anim.ids[i]].animate(anim.animate, anim.dur);
 }
 
-Presentation.prototype.play = function (slideNum) {
+Presentation.prototype.play = function(slideNum) {
     this.clearSlide();
     if (typeof slideNum !== "undefined")
         this.slides[parseInt(slideNum)]();
@@ -65,19 +65,31 @@ Presentation.resize = function() {
     var width = 1;
     var height = 1;
 
-    if (maxWidth > maxHeight) {
+    //aspect ratio
+    var ratio = Presentation.gcd(window.settings.width, window.settings.height);
+    var windowRatio = Presentation.gcd(maxWidth, maxHeight);
+    var xRatio = window.settings.width / ratio;
+    var yRatio = window.settings.height / ratio;
+
+    var widthCalc = Math.round((xRatio * maxHeight) / yRatio);
+
+    if (maxWidth > maxHeight && widthCalc <= maxWidth) {
         height = maxHeight;
-        width = Math.round((4 * height) / 3);
+        width = widthCalc;
     } else {
-        var width = maxWidth;
-        var height = Math.round((3 * width) / 4);
+        width = maxWidth;
+        height = Math.round((yRatio * width) / xRatio);
     }
     $("#" + window.element).width(width).height(height);
     preso.paper.setSize(width, height);
-    preso.paper.setViewBox(0, 0, 1024, 768, true);
+    preso.paper.setViewBox(0, 0, window.settings.width, window.settings.height, true);
 }
 
-Presentation.getFromUrl = function(key,queryStr,delim,equal) {
+Presentation.gcd = function(a, b) {
+    return (b == 0) ? a : Presentation.gcd(b, a % b);
+}
+
+Presentation.getFromUrl = function(key, queryStr, delim, equal) {
     if (queryStr == null)
         queryStr = window.location.search;
     if (queryStr.indexOf("?") == 0)
@@ -100,7 +112,7 @@ Presentation.getFromUrl = function(key,queryStr,delim,equal) {
 }
 
 $(function() {
-    $(window).resize(function () {
+    $(window).resize(function() {
         Presentation.resize();
     });
     window.preso = new Presentation("holder", window.settings.width, window.settings.height);
