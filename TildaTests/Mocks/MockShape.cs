@@ -206,7 +206,7 @@ namespace TildaTests.Mocks
 
         public void Export(string PathName, PpShapeFormat Filter, int ScaleWidth = 0, int ScaleHeight = 0, PpExportMode ExportMode = PpExportMode.ppRelativeToSlide)
         {
-            throw new NotImplementedException();
+            
         }
 
         public FillFormat Fill
