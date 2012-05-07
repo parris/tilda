@@ -224,7 +224,7 @@ namespace TildaTests
             TildaSlide slide = null;
             string expected = string.Empty;
             string actual;
-            actual = target.toRaphJS(animationMap, slide);
+            actual = target.toRaphJS(animationMap);
             Assert.AreEqual(expected, actual);
         }
     }

@@ -100,7 +100,7 @@ namespace Tilda.Models {
             return text;
         }
 
-        public override string toRaphJS(TildaAnimation[] animationMap,TildaSlide slide) {
+        public override string toRaphJS(TildaAnimation[] animationMap) {
             String js = "";
             double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
             double currentHeight;
@@ -113,10 +113,9 @@ namespace Tilda.Models {
             double shapeX = this.findX();
             String[] parts = this.text.Split(new string[] { "~|" }, StringSplitOptions.None);
             for (int i = 0; i < parts.Length; i++) {
+                js += "idsToAnimate = new Array();";
                 String part = parts[i];
                 TildaAnimation found = null;
-                int shapeAnim = -1;
-                string textboxAnims = "";
                 //find animation
                 foreach(TildaAnimation animation in animationMap) {
                     try {
@@ -139,12 +138,11 @@ namespace Tilda.Models {
                         bulletXSpace += 30 * Int32.Parse(part[1] + "");
                     js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5 + bulletXSpace) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
                     if (found != null) {
-                        js += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0});";
-                        shapeAnim = slide.shapeCount;
+                        js += "idsToAnimate.push(preso.shapes.length-1);";
+                        js += "preso.shapes[(preso.shapes.length-1)].attr({'fill-opacity':0,'stroke-opacity':0});";
                     }
                     xAdd += (30 * this.scaler) * Int32.Parse(""+part[1]);
                     part = part.Substring(3);
-                    slide.shapeCount++;
                 }
 
                 //split even more
@@ -153,28 +151,22 @@ namespace Tilda.Models {
                     var fontpos = this.fontPosition((float)xAdd, (float)(currentHeight - this.findY()));
                     String textbox = "preso.shapes.push(preso.paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
 
-                    if (found != null) {
-                        textbox += "preso.shapes[" + slide.shapeCount + "].attr({'fill-opacity':0,'stroke-opacity':0,'opacity':0});";
-                        textboxAnims += slide.shapeCount + ",";
+                    if(found != null) {
+                        textbox += "idsToAnimate.push(preso.shapes.length-1);";
+                        textbox += "preso.shapes[(preso.shapes.length-1)].attr({'fill-opacity':0,'stroke-opacity':0,'opacity':0});";
+                        //textboxAnims += slide.shapeCount + ",";
                     }
 
                     js += textbox;
                     currentHeight += lineHeight;
-                    slide.shapeCount++;
                 }
 
                 //more bullet stuff
                 if (hasBullet)
                     currentHeight += (lineHeight / 3) / 2; // some extra amount,after
 
-                if (textboxAnims.Length > 0) {
-                    string ids = textboxAnims;
-                    if (shapeAnim != -1)
-                        ids += shapeAnim;
-                    else
-                        ids = ids.Substring(0, ids.Length - 1);
-                    js += "preso.animations.push({'ids':[" + ids + "],'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1,'opacity':1}});";
-                }
+                if (found != null) 
+                    js += "preso.animations.push({'ids':idsToAnimate,'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1,'opacity':1}});";
             }
             return js;
         }

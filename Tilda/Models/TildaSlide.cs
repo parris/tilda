@@ -19,7 +19,6 @@ namespace Tilda.Models
     {
         public PowerPoint.Slide slide;
         //public PowerPoint.Selection shapesRange;
-        public int shapeCount = 0;
 
         public TildaSlide(PowerPoint.Slide slide)
         {
@@ -52,15 +51,14 @@ namespace Tilda.Models
                 animationCount++;
             }
 
+            js += "var idsToAnimate = new Array();";
             foreach (TildaShape shape in shapeMap.Values) {
                 if (shape == null)
                     continue;
-                js += shape.toRaphJS(animationMap,this);
+                js += shape.toRaphJS(animationMap);
             }
 
             js += this.exportBackgroundImage(shapes);
-            shapeCount = 0;
-
             js += "}";
 
             //js += .toRaphJS(shapeMap, animationMap);
@@ -74,8 +72,6 @@ namespace Tilda.Models
                     //effect.
                 }
             }*/
-
-            //html += "</div>";
             return js;
         }
 
@@ -105,7 +101,7 @@ namespace Tilda.Models
             slide.Export(backgroundSavePath, "PNG",
                 (int)(Settings.PresentationWidth() * 2), (int)(Settings.PresentationHeight() * 2));
             String js = "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + backgroundFileName + "',0,0" + "," + (int)(Settings.PresentationWidth()) + "," + (int)(Settings.PresentationHeight()) + "));";
-            js += "preso.shapes["+this.shapeCount+"].toBack();";
+            js += "preso.shapes[(preso.shapes.length-1)].toBack();";
 
             //return shapes back to normal
             foreach(PowerPoint.Shape shape in toBeUnhidden)

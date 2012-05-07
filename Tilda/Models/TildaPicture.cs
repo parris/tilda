@@ -23,7 +23,7 @@ namespace Tilda.Models {
             : base(shape, id) {
         }
 
-        public override string toRaphJS(TildaAnimation[] animationMap, TildaSlide slide) {
+        public override string toRaphJS(TildaAnimation[] animationMap) {
             String fileName = Settings.NextRandomValue() + "-" + Settings.NextRandomValue() + "-image.png";
             String savePath = Settings.outputMediaFullPath + Path.DirectorySeparatorChar + fileName;
 
@@ -32,10 +32,9 @@ namespace Tilda.Models {
             String js = "preso.shapes.push(preso.paper.image('" + Settings.outputMediaPath + "/" + fileName + "'," + this.position() + "," + shape.Width * scaler + "," + shape.Height * scaler + "));";
             foreach (TildaAnimation animation in animationMap)
                 if (this.shape.Id.Equals(animation.shape.shape.Id)) {
-                    js += "preso.shapes[" + slide.shapeCount + "].attr({'opacity':0});";
-                    js += "preso.animations.push({'ids':[" + slide.shapeCount + "],'dur':" + animation.effect.Timing.Duration * 1000 + ",'delay':" + animation.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'opacity':1}});";
+                    js += "preso.shapes[(preso.shapes.length-1)].attr({'opacity':0});";
+                    js += "preso.animations.push({'ids':[(preso.shapes.length-1)],'dur':" + animation.effect.Timing.Duration * 1000 + ",'delay':" + animation.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'opacity':1}});";
                 }
-            slide.shapeCount++;
             return js;
         }
     }

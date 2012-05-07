@@ -63,13 +63,15 @@ namespace Tilda.Models {
         public static float Scaler() {
             //we need some formula here. right now we support 16:9 and 4:3
             //TODO: find appropriate formula if possible
-            float ratio = (float)PresentationWidth() / (float)PresentationHeight();
+            /*float ratio = (float)PresentationWidth() / (float)PresentationHeight();
             if(ratio - 1.33333 < .001)
-                return 1.4f;
+                return 2.0f;
             else if(ratio - 1.77777 < .001)
                 return 2.0f;
             else
-                return 1.6f;
+                return 1.6f;*/
+            //for some reason 2.0 seems to be just working now regardless of resolution
+            return 2.0f; 
         }
 
         public static String NextRandomValue() {

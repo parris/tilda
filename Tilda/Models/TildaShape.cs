@@ -161,7 +161,7 @@ namespace Tilda.Models
                 return "unknownshape" + shape.Id;
         }
 
-        public virtual String toRaphJS(TildaAnimation[] animationMap, TildaSlide slide) {
+        public virtual String toRaphJS(TildaAnimation[] animationMap) {
             return "";
         }
     }

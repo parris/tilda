@@ -102,12 +102,11 @@ namespace TildaTests
                 + shapeMap[0].position() + ","+(shapeMap[0].shape.Width*Settings.Scaler())+","+shapeMap[0].shape.Height*Settings.Scaler()+@"\)\);";
             string actual;
 
-            Assert.AreEqual(slide.shapeCount, 0);
-            actual = target.toRaphJS(animationMap, slide);
+            //Assert.AreEqual(slide.shapeCount, 0);
+            actual = target.toRaphJS(animationMap);
 
             Boolean doesEqual = Regex.IsMatch(actual,expected);
             Assert.AreEqual(true, doesEqual);
-            Assert.AreEqual(slide.shapeCount, 1);
 
             //Adding animations
             animationMap = new TildaAnimation[1];
@@ -116,12 +115,11 @@ namespace TildaTests
             animationMap[0].effect.Timing.TriggerDelayTime = 15f;
             expected = @"preso.shapes.push\(preso.paper.image\('assets/[0-9]*-[0-9]*-image.png',"
                 + shapeMap[0].position() + "," + (shapeMap[0].shape.Width * Settings.Scaler()) + "," + shapeMap[0].shape.Height * Settings.Scaler() + @"\)\);"
-                + @"preso.shapes\[1\].attr\(\{'opacity':0\}\);preso.animations.push\(\{'ids':\[1\],'dur':" + animationMap[0].effect.Timing.Duration * 1000 
+                + @"preso.shapes\[\(preso.shapes.length-1\)\].attr\(\{'opacity':0\}\);preso.animations.push\(\{'ids':\[\(preso.shapes.length-1\)\],'dur':" + animationMap[0].effect.Timing.Duration * 1000 
                 + @",'delay':" + animationMap[0].effect.Timing.TriggerDelayTime * 1000 + @",animate:\{'opacity':1\}\}\);";
-            actual = target.toRaphJS(animationMap, slide);
+            actual = target.toRaphJS(animationMap);
             doesEqual = Regex.IsMatch(actual, expected);
             Assert.AreEqual(true, doesEqual);
-            Assert.AreEqual(slide.shapeCount, 2);
         }
     }
 }
