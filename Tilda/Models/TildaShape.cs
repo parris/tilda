@@ -16,6 +16,7 @@ namespace Tilda.Models
     class TildaShape
     {
         public PowerPoint.Shape shape;
+        public List<TildaAnimation> animations;
         public float scaler = 1.4F;
         public float padding = 5F;
         public int id = 0;
@@ -29,6 +30,7 @@ namespace Tilda.Models
             this.shape = shape;
             this.scaler = Settings.Scaler();
             this.id = id;
+            animations = new List<TildaAnimation>();
         }
 
         public virtual String position(float xOffset = 0, float yOffset = 0)
@@ -80,12 +82,21 @@ namespace Tilda.Models
             return "#"+z;
         }
 
+        /**
+         * Returns the rotation for this shape
+         * @return String containing the amount to string is rotated in degrees
+         */
         public String transformation()
         {
             float deg = shape.Rotation;
             return "'transformation':'r" + deg + "'";
         }
 
+        /**
+         * Gives a hex value for some value 0-15
+         * @param int number to convert
+         * @return String hex value
+         */
         private String giveHex(int dec)
         {
            if(dec == 10)
@@ -103,6 +114,11 @@ namespace Tilda.Models
            return ""+dec;
         }
 
+        /**
+         * In the current implementation this is not needed; however, if we switch to a model where
+         * we have javascript selectors then this would be valuable.
+         * @return String the name of this shape
+         */
         public String name()
         {
             if (shape.Type.Equals(Office.MsoShapeType.msoAutoShape))
@@ -161,7 +177,11 @@ namespace Tilda.Models
                 return "unknownshape" + shape.Id;
         }
 
-        public virtual String toRaphJS(TildaAnimation[] animationMap) {
+        /**
+         * Somewhat of an abstract definition of how a shape should output to raphael js
+         * @return String JS that would render this shape
+         */
+        public virtual String toRaphJS() {
             return "";
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Microsoft.Office.Interop.PowerPoint;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace TildaTests
 {
@@ -95,7 +96,7 @@ namespace TildaTests
             shapeMap[1].shape.Width = 50f;
             shapeMap[1].shape.Height = 60f;
 
-            TildaAnimation[] animationMap = new TildaAnimation[0]; 
+            List<TildaAnimation> animationMap = new List<TildaAnimation>(); 
 
             TildaSlide slide = new TildaSlide(new TildaTests.Mocks.MockSlide());
             string expected = @"preso.shapes.push\(preso.paper.image\('assets/[0-9]*-[0-9]*-image.png',"
@@ -103,21 +104,22 @@ namespace TildaTests
             string actual;
 
             //Assert.AreEqual(slide.shapeCount, 0);
-            actual = target.toRaphJS(animationMap);
+            actual = target.toRaphJS();
 
             Boolean doesEqual = Regex.IsMatch(actual,expected);
             Assert.AreEqual(true, doesEqual);
 
             //Adding animations
-            animationMap = new TildaAnimation[1];
-            animationMap[0] = new TildaAnimation(new MockEffect(),shapeMap[0]);
-            animationMap[0].effect.Timing.Duration = 5f;
-            animationMap[0].effect.Timing.TriggerDelayTime = 15f;
+            TildaAnimation anim = new TildaAnimation(new MockEffect(),shapeMap[0]);
+            anim.effect.Timing.Duration = 5f;
+            anim.effect.Timing.TriggerDelayTime = 15f;
+            shapeMap[0].animations.Add(anim);
+
             expected = @"preso.shapes.push\(preso.paper.image\('assets/[0-9]*-[0-9]*-image.png',"
                 + shapeMap[0].position() + "," + (shapeMap[0].shape.Width * Settings.Scaler()) + "," + shapeMap[0].shape.Height * Settings.Scaler() + @"\)\);"
-                + @"preso.shapes\[\(preso.shapes.length-1\)\].attr\(\{'opacity':0\}\);preso.animations.push\(\{'ids':\[\(preso.shapes.length-1\)\],'dur':" + animationMap[0].effect.Timing.Duration * 1000 
-                + @",'delay':" + animationMap[0].effect.Timing.TriggerDelayTime * 1000 + @",animate:\{'opacity':1\}\}\);";
-            actual = target.toRaphJS(animationMap);
+                + @"preso.shapes\[\(preso.shapes.length-1\)\].attr\(\{'opacity':0\}\);preso.animations.push\(\{'ids':\[\(preso.shapes.length-1\)\],'dur':" + anim.effect.Timing.Duration * 1000
+                + @",'delay':" + anim.effect.Timing.TriggerDelayTime * 1000 + @",animate:\{'opacity':1\}\}\);";
+            actual = target.toRaphJS();
             doesEqual = Regex.IsMatch(actual, expected);
             Assert.AreEqual(true, doesEqual);
         }

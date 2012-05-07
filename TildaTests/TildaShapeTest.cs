@@ -220,11 +220,9 @@ namespace TildaTests
             Shape shape = new MockShape();
             int id = 0; 
             TildaShape target = new TildaShape(shape, id);
-            TildaAnimation[] animationMap = null; 
-            TildaSlide slide = null;
             string expected = string.Empty;
             string actual;
-            actual = target.toRaphJS(animationMap);
+            actual = target.toRaphJS();
             Assert.AreEqual(expected, actual);
         }
     }

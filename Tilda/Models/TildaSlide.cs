@@ -33,7 +33,6 @@ namespace Tilda.Models
             //shapes, new count+1 for background
             int count = 0;
 
-
             foreach (PowerPoint.Shape shape in shapes) {
                 if (shape.Type.Equals(Office.MsoShapeType.msoPlaceholder)||shape.Type.Equals(Office.MsoShapeType.msoTextBox)){
                     shapeMap.Add(shape.Id, new TildaTextbox(shape, count));
@@ -41,21 +40,14 @@ namespace Tilda.Models
                     shapeMap.Add(shape.Id, new TildaPicture(shape, count)); //for now everything else can be an image!
                 count++;
             }
-            
-            TildaAnimation[] animationMap = new TildaAnimation[slide.TimeLine.MainSequence.Count];
-            int animationCount = 0;
-            //animations started without click, on end, on start, etc
-            foreach (PowerPoint.Effect effect in slide.TimeLine.MainSequence)
-            {
-                animationMap[animationCount] = new TildaAnimation(effect,shapeMap[effect.Shape.Id]);
-                animationCount++;
-            }
+
+            this.mapAnimationToShape(slide.TimeLine.MainSequence, shapeMap);
 
             js += "var idsToAnimate = new Array();";
             foreach (TildaShape shape in shapeMap.Values) {
                 if (shape == null)
                     continue;
-                js += shape.toRaphJS(animationMap);
+                js += shape.toRaphJS();
             }
 
             js += this.exportBackgroundImage(shapes);
@@ -73,6 +65,11 @@ namespace Tilda.Models
                 }
             }*/
             return js;
+        }
+
+        private void mapAnimationToShape(PowerPoint.Sequence effects,Dictionary<int,TildaShape> shapeMap) {
+            foreach(PowerPoint.Effect effect in effects) 
+                shapeMap[effect.Shape.Id].animations.Add(new TildaAnimation(effect, shapeMap[effect.Shape.Id]));
         }
 
         private List<Shape> sortShapesByZIndex(PowerPoint.Shapes shapes){

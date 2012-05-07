@@ -100,7 +100,7 @@ namespace Tilda.Models {
             return text;
         }
 
-        public override string toRaphJS(TildaAnimation[] animationMap) {
+        public override string toRaphJS() {
             String js = "";
             double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
             double currentHeight;
@@ -117,7 +117,7 @@ namespace Tilda.Models {
                 String part = parts[i];
                 TildaAnimation found = null;
                 //find animation
-                foreach(TildaAnimation animation in animationMap) {
+                foreach(TildaAnimation animation in animations) {
                     try {
                         if(found == null && this.shape.Id.Equals(animation.shape.shape.Id) && i == animation.effect.Paragraph - 1)
                             found = animation;
