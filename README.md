@@ -28,12 +28,9 @@ A: Tilda aims to collect all the data from a slide, then, as accurately as possi
 Q: Can I work on Tilda?  
 A: Yes PLEASE!!! I need help :).
 
-Q: How far along are you?  
-A: Text is able to be grabbed, line breaks/wraps preserved. We have a script to pull out any mp4s, mp3s, jpgs from a ppt. We can do "Fade" animations on various shapes. We have unit tests with some mocks.
-
-Q: What do you need help with?  
+Q: What do you need help with? How far along are you?  
 A: https://www.pivotaltracker.com/projects/536345/stories , We will be using pivotaltracker to keep schedule features. This should help us see what is complete, what needs to be done, and track our ideas as well!
   
 Q: Why is it called Tilda?  
-A: Throughout the code before completely converting to JS we use '~' as a form of simple markup various shapes/animation. Text conversion from PPT to Raphael is actually not very easy; especially when you are trying to maintain animations across lines in a textbox. Also tilda is only 5 characters, the most undervalued typable character, and works great as a delimeter since no one even knows what it is.
+A: It is just my favorite little delimeter. Also, originally, I had done some extremely stupid things with it in the code base. 
 

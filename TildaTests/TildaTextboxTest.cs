@@ -152,7 +152,7 @@ namespace TildaTests
         }
 
         /// <summary>
-        ///A test for tildifyText
+        ///A test for getParagraphs
         ///</summary>
         [TestMethod()]
         public void tildifyTextTest() {
@@ -161,7 +161,7 @@ namespace TildaTests
             //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
             //string expected = string.Empty; // TODO: Initialize to an appropriate value
             //string actual;
-            //actual = target.tildifyText();
+            //actual = target.getParagraphs();
             //Assert.AreEqual(expected, actual);
             //Assert.Inconclusive("Verify the correctness of this test method.");
         }

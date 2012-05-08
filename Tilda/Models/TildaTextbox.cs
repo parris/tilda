@@ -16,6 +16,7 @@ namespace Tilda.Models {
     class TildaTextbox : TildaShape {
         
         public String text = "";
+        private List<TextRange> paragraphs = new List<TextRange>();
 
         /**
          * Creates a new TildaShape Object from a powerpoint shape
@@ -23,12 +24,15 @@ namespace Tilda.Models {
          */
         public TildaTextbox(PowerPoint.Shape shape, int id = 0): base(shape, id)
         {
-            this.text = this.tildifyText();
+            //this.text = this.getParagraphs();
+            this.getParagraphs();
         }
 
-        public String fontStyle()
+        public String fontStyle(TextRange range = null)
         {
-            return "'font-style':'" + shape.TextEffect.FontName + "','font-size':'" + scaler * shape.TextEffect.FontSize + "','fill':'" + this.rgbToHex(shape.TextFrame.TextRange.Font.Color.RGB) + "'";
+            if(range == null)
+                range = shape.TextFrame.TextRange;
+            return "'font-style':'" + range.Font.Name + "','font-size':'" + scaler * range.Font.Size + "','fill':'" + this.rgbToHex(range.Font.Color.RGB) + "'";
         }
 
         public String fontPosition(float addx = 0, float addy = 0) {
@@ -74,47 +78,22 @@ namespace Tilda.Models {
             return Math.Round(value);
         }
 
-        public String tildifyText()
-        {
-            var font = this.fontStyle();
-            var deg = this.transformation();
-            String text = "";
-            //we choose to represent line breaks as "~|" to keep the same length and not interfere with anything
-            foreach (TextRange paragraph in shape.TextFrame.TextRange.Paragraphs()) {
-                var pgText = paragraph.Text.Replace("\r", "~|");
-                var lines = paragraph.Lines(0,400);
-                var pos = 0;
-                var count = 0;
-                if (lines.Count > 1) 
-                    foreach (TextRange line in lines) {
-                        pos += line.Length;
-                        if (count < lines.Count-1)
-                            pgText = pgText.Insert(pos, "~");
-                        count++;
-                    }
-                if (paragraph.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone)
-                    pgText = "-" + paragraph.IndentLevel + " " + pgText;
-                text += pgText;
-            }
-            
-            return text;
-        }
-
-        public override string toRaphJS() {
+        public override String toRaphJS() {
             String js = "";
             double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
             double currentHeight;
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignLeft)
-                currentHeight = this.findY() + (float)(lineHeight / (1.5));
+            if(shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignLeft)
+                currentHeight = this.findY() + (float)(lineHeight / (1.5)); //this feels odd, but it looks right
             else
                 currentHeight = this.findY();
+            double shapeX = this.findX();
+
             string font = this.fontStyle();
             string transform = this.transformation();
-            double shapeX = this.findX();
-            String[] parts = this.text.Split(new string[] { "~|" }, StringSplitOptions.None);
-            for (int i = 0; i < parts.Length; i++) {
+
+            for (int i = 0; i < paragraphs.Count; i++) {
                 js += "idsToAnimate = new Array();";
-                String part = parts[i];
+                TextRange paragraph = paragraphs.ElementAt(i);
                 TildaAnimation found = null;
                 //find animation
                 foreach(TildaAnimation animation in animations) {
@@ -127,29 +106,23 @@ namespace Tilda.Models {
                 //is bullet? add some spacing...
                 double xAdd = 0;
                 bool hasBullet = false;
-
-                if (part.Length > 0 && part[0] == '-') {
-                    currentHeight += (lineHeight / 3)/2; // some extra amount,before
+                if(paragraph.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone) {
+                    currentHeight += (lineHeight / 3) / 2; // some extra amount,before
                     hasBullet = true;
-                    float bulletSize = this.shape.TextFrame.TextRange.Font.Size / 4 * this.scaler;
-                    //if bullet is not at level 1 figure out how much space to add
-                    int bulletXSpace = 0;
-                    if(Int32.Parse(part[1] + "") > 1)
-                        bulletXSpace += 30 * Int32.Parse(part[1] + "");
+                    float bulletSize = paragraph.Font.Size / 4 * this.scaler;
+                    int bulletXSpace = 30 * paragraph.IndentLevel;
                     js += "preso.shapes.push(preso.paper.rect(" + (shapeX + 5 + bulletXSpace) + "," + (currentHeight - bulletSize / 2) + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#84BD00','fill':'#84BD00'}));";
-                    if (found != null) {
+                    if(found != null) {
                         js += "idsToAnimate.push(preso.shapes.length-1);";
                         js += "preso.shapes[(preso.shapes.length-1)].attr({'fill-opacity':0,'stroke-opacity':0});";
                     }
-                    xAdd += (30 * this.scaler) * Int32.Parse(""+part[1]);
-                    part = part.Substring(3);
+                    xAdd += bulletXSpace*this.scaler;
                 }
 
-                //split even more
-                String[] miniparts = part.Split('~');
-                foreach (String minipart in miniparts) {
+                var lines = paragraph.Lines(0, 400);
+                foreach(TextRange minipart in lines) {
                     var fontpos = this.fontPosition((float)xAdd, (float)(currentHeight - this.findY()));
-                    String textbox = "preso.shapes.push(preso.paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart + "').attr({" + font + "," + transform + "," + fontpos + "}));";
+                    String textbox = "preso.shapes.push(preso.paper.text(" + (shapeX + xAdd) + "," + currentHeight + ",'" + minipart.Text.Replace("\r", "") +"').attr({" + font + "," + transform + "," + fontpos + "}));";
 
                     if(found != null) {
                         textbox += "idsToAnimate.push(preso.shapes.length-1);";
@@ -161,14 +134,21 @@ namespace Tilda.Models {
                     currentHeight += lineHeight;
                 }
 
-                //more bullet stuff
-                if (hasBullet)
+                //extra bullet spacing
+                if(hasBullet)
                     currentHeight += (lineHeight / 3) / 2; // some extra amount,after
 
-                if (found != null) 
+                if(found != null)
                     js += "preso.animations.push({'ids':idsToAnimate,'dur':" + found.effect.Timing.Duration * 1000 + ",'delay':" + found.effect.Timing.TriggerDelayTime * 1000 + ",animate:{'fill-opacity':1,'stroke-opacity':1,'opacity':1}});";
             }
+
             return js;
+        }
+
+        private void getParagraphs() {
+            foreach(TextRange paragraph in shape.TextFrame.TextRange.Paragraphs()) {
+                this.paragraphs.Add(paragraph);
+            }
         }
     }
 }
