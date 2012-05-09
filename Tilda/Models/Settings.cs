@@ -12,6 +12,7 @@ using System.IO.Packaging;
 using Ionic.Zip;
 using System.Windows.Forms;
 using System.IO;
+using Microsoft.Office.Interop.PowerPoint;
 
 namespace Tilda.Models {
     static class Settings {
@@ -23,6 +24,14 @@ namespace Tilda.Models {
         private static Random rand = new Random(Int32.MaxValue);
         
         //you shouldn't modify anything below
+        //for numbered lists
+        public static String[] AToZ = Enumerable.Range((int)'A', 26).Select(value => ((char)value).ToString()).ToArray();
+        public static String[] aToz = Enumerable.Range((int)'a', 26).Select(value => ((char)value).ToString()).ToArray();
+        //Rather than computing, We'll just list, it is unlikely values will be longer than this
+        public static String[] romanNumeralsLC = new String[26]{"i","ii","iii","iv","v","vi","vii","viii",
+                "ix","x","xi","xii","xiii","xiv","xv","xvi","xvii","xviii","xix",
+                "xx","xxi","xxii","xxiii","xxiv","xxv","xxvi"};
+        public static String[] romanNumeralsUC = Array.ConvertAll<string, string>(Settings.romanNumeralsLC, delegate(string s) { return s.ToUpper(); });
 
         /**
          * @returns PowerPoint.Presention the current presentation object
@@ -41,7 +50,7 @@ namespace Tilda.Models {
         public static PowerPoint.Slide ActiveSlide() {
             try {
                 return Globals.ThisAddIn.Application.ActiveWindow.View.Slide;
-            } catch(Exception e) {
+            } catch {
                 return new MockSlide();
             }
         }
@@ -61,16 +70,6 @@ namespace Tilda.Models {
         }
 
         public static float Scaler() {
-            //we need some formula here. right now we support 16:9 and 4:3
-            //TODO: find appropriate formula if possible
-            /*float ratio = (float)PresentationWidth() / (float)PresentationHeight();
-            if(ratio - 1.33333 < .001)
-                return 2.0f;
-            else if(ratio - 1.77777 < .001)
-                return 2.0f;
-            else
-                return 1.6f;*/
-            //for some reason 2.0 seems to be just working now regardless of resolution
             return 2.0f; 
         }
 
