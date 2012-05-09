@@ -25,7 +25,6 @@ namespace Tilda {
             System.IO.File.WriteAllText(Settings.outputPath + Path.DirectorySeparatorChar + "settings.js", Settings.PresoSettingsToJS());
             export("preso.slides.push(" + slide.exportSlide() + ");");
             cleanUpFolders();
-            MessageBox.Show("Saved :)");
         }
 
         private void exportTildaShape_Click(object sender, RibbonControlEventArgs e) {
@@ -44,7 +43,6 @@ namespace Tilda {
                     js += "preso.slides.push(" + slide.exportSlide() + ");";
                 }
                 export(js);
-                MessageBox.Show("Saved :)");
             } else if(type == PowerPoint.PpSelectionType.ppSelectionShapes) {
                 /*PowerPoint.Slide currentSlide = Settings.ActiveSlide();
                 TildaSlide slide = new TildaSlide(currentSlide);
@@ -99,13 +97,24 @@ namespace Tilda {
                 zip.Save(path + Path.DirectorySeparatorChar + "slide.zip");
                 //create dialog box
                 SaveFileDialog dia = new SaveFileDialog();
-                dia.Filter = "Zip File (*.zip)|*.zip|All files (*.*)|*.*";
+                dia.Filter = "Zip File (*.zip)|*.zip";
                 dia.FilterIndex = 2;
                 dia.RestoreDirectory = true;
 
                 //open dialog move file
-                if (dia.ShowDialog() == DialogResult.OK)
-                    File.Copy(path + Path.DirectorySeparatorChar + "slide.zip", dia.FileName, true);
+                bool successful = false;
+                while (!successful) {
+                    DialogResult result = dia.ShowDialog();
+                    if(result == DialogResult.OK) 
+                        try {
+                            File.Copy(path + Path.DirectorySeparatorChar + "slide.zip", dia.FileName, true);
+                            successful = true;
+                        } catch {
+                            MessageBox.Show("The save path you selected is being used by another program. Please select another");
+                        }
+                    else if(result == DialogResult.Cancel)
+                        successful = true;
+                }
 
                 //remove zip file
                 File.Delete(path + Path.DirectorySeparatorChar + "slide.zip");
