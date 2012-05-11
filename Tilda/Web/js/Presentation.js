@@ -80,7 +80,8 @@ Presentation.resize = function() {
         width = maxWidth;
         height = Math.round((yRatio * width) / xRatio);
     }
-    $("#" + window.element).width(width).height(height);
+
+    $("#" + preso.element).width(width).height(height);
     preso.paper.setSize(width, height);
     preso.paper.setViewBox(0, 0, window.settings.width, window.settings.height, true);
 }
@@ -112,9 +113,6 @@ Presentation.getFromUrl = function(key, queryStr, delim, equal) {
 }
 
 $(function() {
-    $(window).resize(function() {
-        Presentation.resize();
-    });
     window.preso = new Presentation("holder", window.settings.width, window.settings.height);
     $.getScript("content.js", function() {
         preso.paper.setStart();
@@ -128,5 +126,8 @@ $(function() {
         //wrap up the paper
         preso.paper.setFinish();
         Presentation.resize();
+        $(window).resize(function() {
+            Presentation.resize();
+        });
     });
 });
