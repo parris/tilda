@@ -10,13 +10,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing;
+using Microsoft.Office.Core;
 
 namespace Tilda.Models {
 
     class TildaTextbox : TildaShape {
         
         public String text = "";
-        private List<TextRange> paragraphs = new List<TextRange>();
+        private List<TextRange2> paragraphs = new List<TextRange2>();
         //used when calculating the height
         //reduces the amount of code, although is modified and read in a few functions
         private double currentHeight = 0; 
@@ -36,11 +37,16 @@ namespace Tilda.Models {
          * @param TextRange to look up information on, if none specifed then this this.shape's TextRange is found and used
          * @return String representing JSON attributes of font style as per RaphaelJS specifications
          */
-        public String fontStyle(TextRange range = null)
+        public String fontStyle(TextRange2 range = null)
         {
             if(range == null)
-                range = shape.TextFrame.TextRange;
-            return "'font-style':'" + range.Font.Name + "','font-size':'" + scaler * range.Font.Size + "','fill':'" + this.rgbToHex(range.Font.Color.RGB) + "'";
+                range = shape.TextFrame2.TextRange;
+            String js = "'font-family':'" + range.Font.Name + "','font-size':'" + scaler * range.Font.Size + "','fill':'" + this.rgbToHex(range.Font.Fill.ForeColor.RGB) + "'";
+            if(range.Font.Bold == MsoTriState.msoCTrue)
+                js += ",'font-weight':'bold'";
+            if(range.Font.Italic == MsoTriState.msoCTrue)
+                js += ",'font-family':'italic'";
+            return js;
         }
 
         /**
@@ -50,12 +56,12 @@ namespace Tilda.Models {
          * @return String representing part of JSON object for text attributes in RaphJS
          */
         public String fontPosition(float addx = 0, float addy = 0) {
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                return "'cx':" + (this.findX() + addx) + ", 'cy':'" + (this.findY() + addy) + "', 'text-anchor': 'middle'";
-            else if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignRight)
-                return "'x':" + (this.findX() + addx) + ", 'y':'" + (this.findY() + addy) + "', 'text-anchor': 'end'";
+            if (shape.TextFrame2.TextRange.ParagraphFormat.Alignment == MsoParagraphAlignment.msoAlignCenter)
+                return "'text-anchor': 'middle'";
+            else if(shape.TextFrame2.TextRange.ParagraphFormat.Alignment == MsoParagraphAlignment.msoAlignRight)
+                return "'text-anchor': 'end'";
             else
-                return "'x':" + (this.findX() + addx) + ", 'y':'" + (this.findY() + addy) + "', 'text-anchor': 'start'";
+                return "'text-anchor': 'start'";
         }
 
         /**
@@ -69,33 +75,40 @@ namespace Tilda.Models {
         }
 
         /**
-         * Find horizontal positioning
+         * Find horizontal positioning of this shape
          * @return doulbe x position of this Shape for RaphJS purposes
          */
         public override double findX() {
             float value = 0f;
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                value = scaler * (shape.Width / 2 + shape.TextFrame.MarginLeft + shape.Left);
-            else if(shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignRight)
-                value = scaler * (shape.Left + shape.Width - shape.TextFrame.MarginRight);
+            MsoParagraphAlignment alignment = shape.TextFrame2.TextRange.ParagraphFormat.Alignment;
+            if(alignment == MsoParagraphAlignment.msoAlignCenter)
+                value = scaler * (shape.Width / 2 + shape.TextFrame2.MarginLeft + shape.Left);
+            else if(alignment == MsoParagraphAlignment.msoAlignRight)
+                value = scaler * (shape.Left + shape.Width - shape.TextFrame2.MarginRight);
             else
                 value = scaler * (shape.Left + shape.TextFrame.MarginLeft);
             return Math.Round(value);
         }
 
         /**
-         * Find Vertical positioning
+         * Find vertical positioning of the starting point of the text of this shape.
+         * If anchor top or middle the y position will be the top of line of the first line of text
+         * If anchor bottom or baseline then the y position will be the bottom most portion of the text.
          * @return double y position of this Shape for RaphJS purposes
          */
         public override double findY() {
             //vert positioning
             float value = 0f;
-            if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignCenter)
-                value = scaler * (shape.Height / 2 + shape.TextFrame.MarginTop + shape.Top);
-            else if (shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignJustifyLow)
-                value = scaler * (shape.Height - shape.TextFrame.MarginTop + shape.Top);
+            if (shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorMiddle)
+                value = scaler * (shape.Height / 2 + shape.TextFrame2.MarginTop + shape.Top);
+            else if(shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorBottom)
+                value = scaler * (shape.Top + shape.Height - shape.TextFrame2.MarginBottom);
+            else if(shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorBottomBaseLine)
+                value = scaler * (shape.Top + shape.Height);
+            else if(shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorTopBaseline)
+                value = scaler * (shape.Top);
             else
-                value = scaler * (shape.Top + shape.TextFrame.MarginTop);
+                value = scaler * (shape.Top + shape.TextFrame2.MarginTop);
 
             return Math.Round(value);
         }
@@ -112,15 +125,12 @@ namespace Tilda.Models {
             this.currentHeight = 0;
             String js = "";
             double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
-            if(shape.TextFrame.TextRange.ParagraphFormat.Alignment == PpParagraphAlignment.ppAlignLeft)
-                this.currentHeight = this.findY() + (float)(lineHeight / 4); //this feels odd, but it "looks" right
-            else
-                this.currentHeight = this.findY();
+            this.currentHeight = this.findY();
             double shapeX = this.findX();
 
             for (int i = 0; i < paragraphs.Count; i++) {
                 js += "idsToAnimate = new Array();";
-                TextRange paragraph = paragraphs.ElementAt(i);
+                TextRange2 paragraph = paragraphs.ElementAt(i);
                 TildaAnimation found = null;
                 //find animation
                 foreach(TildaAnimation animation in animations) {
@@ -131,19 +141,22 @@ namespace Tilda.Models {
                 }
 
                 //add spacing above this line
-                this.currentHeight += (paragraph.ParagraphFormat.SpaceBefore) * this.scaler;
+                if (this.isBottomOrBaseLine())
+                    this.currentHeight -= (paragraph.ParagraphFormat.SpaceAfter) * this.scaler;
+                else
+                    this.currentHeight += (paragraph.ParagraphFormat.SpaceBefore) * this.scaler;
 
                 double xAdd = 0;
-                if(paragraph.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone) {
-                    float[] offsets = this.findIndentSpacing(paragraph,paragraph.IndentLevel);
+                if((PpBulletType)paragraph.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone) {
+                    float[] offsets = this.findIndentSpacing(paragraph);
                     float bulletXSpace = offsets[0];
-                    float bulletSize = paragraph.Font.Size / 4 * this.scaler;
+                    float bulletSize = paragraph.Font.Size / 4 * this.scaler; // seems correct
 
-                    js += this.renderBullet(paragraph, (shapeX + 5 + bulletXSpace), (this.currentHeight - bulletSize / 2), found);
+                    js += this.renderBullet(paragraph, (shapeX + bulletXSpace), (this.currentHeight - bulletSize / 2), found);
                     xAdd += offsets[1]+bulletSize;
                 }
 
-                foreach(TextRange line in paragraph.Lines(0, 400)) 
+                foreach(TextRange2 line in this.getLines(paragraph.Lines)) 
                     js += this.renderLine(line,xAdd,found);
 
                 if(found != null)
@@ -152,10 +165,32 @@ namespace Tilda.Models {
             return js;
         }
 
+        private List<TextRange2> getLines(TextRange2 lines) {
+            List<TextRange2> trlines = new List<TextRange2>();
+            foreach(TextRange2 line in lines)
+                trlines.Add(line);
+
+            if(this.isBottomOrBaseLine())
+                trlines.Reverse();
+
+            return trlines;
+        }
+
         private void getParagraphs() {
-            foreach(TextRange paragraph in shape.TextFrame.TextRange.Paragraphs()) {
+            foreach(TextRange2 paragraph in shape.TextFrame2.TextRange.Paragraphs) {
                 this.paragraphs.Add(paragraph);
             }
+
+            if(this.isBottomOrBaseLine())
+                this.paragraphs.Reverse();
+        }
+
+        private bool isBottomOrBaseLine() {
+            if(shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorBottom
+                || shape.TextFrame2.VerticalAnchor == MsoVerticalAnchor.msoAnchorBottomBaseLine)
+                return true;
+            
+            return false;
         }
 
         /**
@@ -166,51 +201,47 @@ namespace Tilda.Models {
          * @param TildaAnimation object containing a powerpoint animation, or just null if no animation
          * @return String containing the RaphJS code representing this bullet
          */
-        private String renderLine(TextRange line, double xOffset, TildaAnimation anim = null) {
-            //All text seems 1 letter off approximately in the x axis, so let's just shift about 1 letter over
-            //I will estimate this at 1/8 the size of the lineheight
-            xOffset -= (line.Font.Size*this.scaler) / 8;
+        private String renderLine(TextRange2 line, double xOffset, TildaAnimation anim = null) {
+            //push current height position up to write the text in the right place if going bottom up
+            if(this.isBottomOrBaseLine())
+                this.currentHeight -= (line.Font.Size * this.scaler);
 
             string font = this.fontStyle(line);
             string transform = this.transformation();
             var fontpos = this.fontPosition((float)(xOffset), (float)(this.currentHeight - this.findY()));
 
-            String textbox = "preso.shapes.push(preso.paper.text(" + (this.findX() + xOffset) + "," + this.currentHeight + ",'" + line.Text.Replace("\r", "") + "').attr({" + font + "," + transform + "," + fontpos + "}));";
+            String textbox = "preso.shapes.push(preso.paper.text(" + (this.findX() + xOffset) + "," + this.currentHeight + ",'" + line.Text.Replace("\r", "").Replace("\v", "") + "').attr({" + font + "," + transform + "," + fontpos + "}));";
 
             if(anim != null) {
                 textbox += "idsToAnimate.push(preso.shapes.length-1);";
                 textbox += "preso.shapes[(preso.shapes.length-1)].attr({'fill-opacity':0,'stroke-opacity':0,'opacity':0});";
             }
 
-            //push the current height position down 
-            this.currentHeight += (line.Font.Size + line.ParagraphFormat.SpaceAfter) * this.scaler;
+            //push the current height position
+            if(this.isBottomOrBaseLine())
+                this.currentHeight -= (line.ParagraphFormat.SpaceBefore) * this.scaler;
+            else
+                this.currentHeight += (line.Font.Size + line.ParagraphFormat.SpaceAfter) * this.scaler;
+
 
             //add some extra spacing, I tried to be mathematical about it, but I don't know where it is coming from
             //it looks like 1/4 the line height, but spread above and below it, the other half of this is before the bullet
-            if(line.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone)
-                this.currentHeight += ((line.Font.Size*this.scaler) / 8);
+            if((PpBulletType)line.ParagraphFormat.Bullet.Type != PpBulletType.ppBulletNone)
+                if (this.isBottomOrBaseLine())
+                    this.currentHeight -= ((line.Font.Size * this.scaler) / 8);
+                else
+                    this.currentHeight += ((line.Font.Size*this.scaler) / 8);
             return textbox;
         }
 
         /**
-         * Tries to find the actual level of indentation between bullets and text at each level.
-         * Currently a function is defined to calculate approximately how this should look. 
+         * Finds the level of indentation between bullets and text at each paragraph.
          * @param TextRange to look up indentation levels on.
-         * @param int the level of the bullet for which information should be return
          * @return float[] contains 2 values FirstMargin (where the bullet is) and LeftMargin (where the text starts)
          */
-        private float[] findIndentSpacing(TextRange t, int level) {
-            float tabValue = 26f;
-            /*if(level == 1) {
-                RulerLevel rl = t.Parent.Ruler.Levels(2);
-                //bullet must start at 0 on the first level for now
-                return new float[2] { 0, rl.LeftMargin * this.scaler };
-            } else {
-                RulerLevel rl = t.Parent.Ruler.Levels[level];
-                return new float[2] { rl.FirstMargin * this.scaler, rl.LeftMargin * this.scaler };
-            }*/
-            //it should look something like this:
-            return new float[2] { (tabValue * (level - 1)) * this.scaler, (tabValue * (level)-level*2) * this.scaler };
+        private float[] findIndentSpacing(TextRange2 t) {
+            ParagraphFormat2 pg = t.ParagraphFormat;
+            return new float[2] { (pg.LeftIndent + pg.FirstLineIndent) * this.scaler, pg.LeftIndent * this.scaler };
         }
 
         /**
@@ -222,7 +253,7 @@ namespace Tilda.Models {
          * @param TildaAnimation object containing a powerpoint animation, or just null if no animation
          * @return String containing the RaphJS code representing this bullet
          */
-        private String renderBullet(TextRange t, double x, double y, TildaAnimation anim = null) {
+        private String renderBullet(TextRange2 t, double x, double y, TildaAnimation anim = null) {
             String js = "";
 
             //no bullet if no text
@@ -230,10 +261,12 @@ namespace Tilda.Models {
                 return js;
 
             //add some extra spacing, I tried to be mathematical about it, but I don't know where it is coming from
-            //it looks like 1/3 the line height, but spread above and below it, the other half of this is after render line
             float extraSpacing = ((t.Font.Size*this.scaler) / 8);
             y += extraSpacing;
-            this.currentHeight += extraSpacing;
+            if(this.isBottomOrBaseLine())
+                this.currentHeight -= extraSpacing;
+            else
+                this.currentHeight += extraSpacing;
 
             //relative size is set by user, this look approximately correct
             float bulletSize = (t.ParagraphFormat.Bullet.RelativeSize * (t.Font.Size / 4)) * this.scaler;
@@ -241,15 +274,15 @@ namespace Tilda.Models {
 
             // find the right color of the bullet, first try the color of the bullet itself
             // fall back to line color otherwise
-            int rgb = t.ParagraphFormat.Bullet.Font.Color.RGB;
+            int rgb = t.ParagraphFormat.Bullet.Font.Fill.ForeColor.RGB;
             if(rgb == 0)
-                rgb = t.Font.Color.RGB;
+                rgb = t.Font.Fill.ForeColor.RGB;
             String color = this.rgbToHex(rgb);
 
-            if(t.ParagraphFormat.Bullet.Type == PpBulletType.ppBulletNumbered) {
+            if(t.ParagraphFormat.Bullet.Type == MsoBulletType.msoBulletNumbered) {
                 int bulletNumber = (t.ParagraphFormat.Bullet.StartValue - 1 + t.ParagraphFormat.Bullet.Number);
                 String bulletText = this.numberedBullet(bulletNumber, t.ParagraphFormat.Bullet.Style);
-                js += "preso.shapes.push(preso.paper.text(" + (x+bulletSize) + "," + this.currentHeight + ",'" + bulletText + "'" + ").attr({" + this.fontStyle(t) + "})";
+                js += "preso.shapes.push(preso.paper.text(" + (x+bulletSize*2) + "," + this.currentHeight + ",'" + bulletText + "'" + ").attr({" + this.fontStyle(t) + "})";
             } else if(bullet == 8226) {
                 double radius = bulletSize / 2;
                 x += radius;
@@ -272,40 +305,40 @@ namespace Tilda.Models {
          * @param PpNumberedBulletStyle from a numbered bullet type, from a textrange
          * @return String representing how the bullet should look
          */
-        private String numberedBullet(int number,PpNumberedBulletStyle style) {
+        private String numberedBullet(int number,MsoNumberedBulletStyle style) {
             String text = "";
-            if(style == PpNumberedBulletStyle.ppBulletAlphaLCParenBoth)
-                text = "(" + Settings.aToz[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletAlphaLCParenRight)
-                text = Settings.aToz[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletAlphaLCPeriod)
-                text = Settings.aToz[number] + ".";
-            else if(style == PpNumberedBulletStyle.ppBulletAlphaUCParenBoth)
-                text = "(" + Settings.AToZ[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletAlphaUCParenRight)
-                text = Settings.AToZ[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletAlphaUCPeriod)
-                text = Settings.AToZ[number] + ".";
-            else if(style == PpNumberedBulletStyle.ppBulletArabicParenBoth)
+            if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaLCParenBoth)
+                text = "(" + Settings.aToz[number-1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaLCParenRight)
+                text = Settings.aToz[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaLCPeriod)
+                text = Settings.aToz[number - 1] + ".";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaUCParenBoth)
+                text = "(" + Settings.AToZ[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaUCParenRight)
+                text = Settings.AToZ[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletAlphaUCPeriod)
+                text = Settings.AToZ[number - 1] + ".";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicParenBoth)
                 text = "("+ number + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletArabicParenRight)
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicParenRight)
                 text = number + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletArabicPeriod || style == PpNumberedBulletStyle.ppBulletArabicDBPeriod)
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicPeriod || (PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicDBPeriod)
                 text = number + ".";
-            else if(style == PpNumberedBulletStyle.ppBulletArabicPlain || style == PpNumberedBulletStyle.ppBulletArabicDBPlain)
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicPlain || (PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletArabicDBPlain)
                 text = number + ".";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanLCParenBoth)
-                text = "(" + Settings.romanNumeralsLC[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanLCParenRight)
-                text = Settings.romanNumeralsLC[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanLCPeriod)
-                text = Settings.romanNumeralsLC[number] + ".";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanUCParenBoth)
-                text = "(" + Settings.romanNumeralsUC[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanUCParenRight)
-                text = Settings.romanNumeralsUC[number] + ")";
-            else if(style == PpNumberedBulletStyle.ppBulletRomanUCPeriod)
-                text = Settings.romanNumeralsUC[number] + ".";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanLCParenBoth)
+                text = "(" + Settings.romanNumeralsLC[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanLCParenRight)
+                text = Settings.romanNumeralsLC[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanLCPeriod)
+                text = Settings.romanNumeralsLC[number - 1] + ".";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanUCParenBoth)
+                text = "(" + Settings.romanNumeralsUC[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanUCParenRight)
+                text = Settings.romanNumeralsUC[number - 1] + ")";
+            else if((PpNumberedBulletStyle)style == PpNumberedBulletStyle.ppBulletRomanUCPeriod)
+                text = Settings.romanNumeralsUC[number - 1] + ".";
             else
                 text = number + ".";
             return text;
