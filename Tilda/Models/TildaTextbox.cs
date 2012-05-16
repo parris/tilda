@@ -86,8 +86,8 @@ namespace Tilda.Models {
             else if(alignment == MsoParagraphAlignment.msoAlignRight)
                 value = scaler * (shape.Left + shape.Width - shape.TextFrame2.MarginRight);
             else
-                value = scaler * (shape.Left + shape.TextFrame.MarginLeft);
-            return Math.Round(value);
+                value = scaler * (shape.Left + shape.TextFrame2.MarginLeft);
+            return value;
         }
 
         /**
@@ -110,7 +110,7 @@ namespace Tilda.Models {
             else
                 value = scaler * (shape.Top + shape.TextFrame2.MarginTop);
 
-            return Math.Round(value);
+            return value;
         }
 
         /**

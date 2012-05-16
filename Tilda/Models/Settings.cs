@@ -39,7 +39,7 @@ namespace Tilda.Models {
         public static PowerPoint.Presentation ActivePresentation() {
             try {
                 return Globals.ThisAddIn.Application.ActiveWindow.Presentation;
-            } catch(Exception e) {
+            } catch {
                 return new MockPresentation(); //debug mode/no preso/good luck kids
             }
         }

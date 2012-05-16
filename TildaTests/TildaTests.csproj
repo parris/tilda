@@ -83,10 +83,13 @@
     <Compile Include="Mocks\MockEffect.cs" />
     <Compile Include="Mocks\MockColorFormat.cs" />
     <Compile Include="Mocks\MockFillFormat.cs" />
+    <Compile Include="Mocks\MockParagraphFormat2.cs" />
     <Compile Include="Mocks\MockShape.cs" />
     <Compile Include="Mocks\MockShapes.cs" />
     <Compile Include="Mocks\MockSlide.cs" />
     <Compile Include="Mocks\MockTextEffectFormat.cs" />
+    <Compile Include="Mocks\MockTextFrame2.cs" />
+    <Compile Include="Mocks\MockTextRange2.cs" />
     <Compile Include="Mocks\MockTimeline.cs" />
     <Compile Include="Mocks\MockTiming.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

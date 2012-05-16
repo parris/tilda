@@ -2,7 +2,9 @@
 using TildaTests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Microsoft.Office.Interop.PowerPoint;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Core;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -69,9 +71,9 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void TildaShapeConstructorTest() {
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             int id = 0;
-            TildaPicture target = new TildaPicture(shape, id);
+            TildaPicture target = new TildaPicture((Microsoft.Office.Interop.PowerPoint.Shape)shape, id);
             Assert.AreEqual(shape, target.shape);
             Assert.AreEqual(Settings.Scaler(), target.scaler);
             Assert.AreEqual(0, target.id);
@@ -82,8 +84,8 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void toRaphJSTest() {
-            Shape shape = new MockShape();
-            int id = 0; 
+            PowerPoint.Shape shape = new MockShape();
+            int id = 0;
             TildaPicture target = new TildaPicture(shape, id); 
 
             TildaShape[] shapeMap = new TildaShape[2];

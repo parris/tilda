@@ -3,7 +3,9 @@ using TildaTests;
 using TildaTests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Microsoft.Office.Interop.PowerPoint;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Core;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using System.Drawing;
 
 namespace TildaTests
@@ -72,7 +74,7 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void TildaShapeConstructorTest() {
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             TildaShape target = new TildaShape(shape,0);
             Assert.AreEqual(shape, target.shape);
             Assert.AreEqual(Settings.Scaler(), target.scaler);
@@ -85,7 +87,7 @@ namespace TildaTests
         [TestMethod()]
         public void RotationTest() {
             //create Shape
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             shape.Rotation = 90;
             //set attributes
 
@@ -169,9 +171,9 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void findXTest() {
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             shape.Left = 50.3f;
-            int id = 0; 
+            int id = 0;
             TildaShape target = new TildaShape(shape, id);
             double expected = shape.Left * Settings.Scaler(); 
             double actual;
@@ -185,7 +187,7 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void findYTest() {
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             shape.Top = 50.3f;
             int id = 0;
             TildaShape target = new TildaShape(shape, id);
@@ -201,10 +203,10 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void positionTest() {
-            Shape shape = new MockShape();
+            PowerPoint.Shape shape = new MockShape();
             shape.Left = 30f;
             shape.Top = 55f;
-            int id = 5; 
+            int id = 5;
             TildaShape target = new TildaShape(shape, id);
             string expected = (double)(shape.Left * Settings.Scaler()) + "," + (double)(shape.Top * Settings.Scaler()); 
             string actual;
@@ -217,8 +219,8 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void toRaphJSTest() {
-            Shape shape = new MockShape();
-            int id = 0; 
+            PowerPoint.Shape shape = new MockShape();
+            int id = 0;
             TildaShape target = new TildaShape(shape, id);
             string expected = string.Empty;
             string actual;

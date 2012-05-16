@@ -119,7 +119,7 @@ namespace TildaTests.Mocks
             shape.Width = Width;
             shape.Height = Height;
             shapes.Add(shape);
-            return shape;
+            return (Microsoft.Office.Interop.PowerPoint.Shape)shape;
         }
 
         public Shape AddTitle()

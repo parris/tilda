@@ -2,91 +2,74 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Core;
 using Microsoft.Office.Interop.PowerPoint;
 
 namespace TildaTests.Mocks
 {
-    class MockColorFormat : ColorFormat
-    {
+    class MockColorFormat : Microsoft.Office.Core.ColorFormat {
+
         private int rgb;
-
-        public dynamic Application
-        {
+        public dynamic Application {
             get { throw new NotImplementedException(); }
         }
 
-        public float Brightness
-        {
-            get
-            {
+        public float Brightness {
+            get {
                 throw new NotImplementedException();
             }
-            set
-            {
+            set {
                 throw new NotImplementedException();
             }
         }
 
-        public int Creator
-        {
+        public int Creator {
             get { throw new NotImplementedException(); }
         }
 
-        public Microsoft.Office.Core.MsoThemeColorIndex ObjectThemeColor
-        {
-            get
-            {
+        public MsoThemeColorIndex ObjectThemeColor {
+            get {
                 throw new NotImplementedException();
             }
-            set
-            {
+            set {
                 throw new NotImplementedException();
             }
         }
 
-        public dynamic Parent
-        {
+        public dynamic Parent {
             get { throw new NotImplementedException(); }
         }
 
-        public int RGB
-        {
-            get
-            {
+        public int RGB {
+            get {
                 return rgb;
             }
-            set
-            {
+            set {
                 this.rgb = value;
             }
         }
 
-        public PpColorSchemeIndex SchemeColor
-        {
-            get
-            {
+        public int SchemeColor {
+            get {
                 throw new NotImplementedException();
             }
-            set
-            {
+            set {
                 throw new NotImplementedException();
             }
         }
 
-        public float TintAndShade
-        {
-            get
-            {
+        public float TintAndShade {
+            get {
                 throw new NotImplementedException();
             }
-            set
-            {
+            set {
                 throw new NotImplementedException();
             }
         }
 
-        public Microsoft.Office.Core.MsoColorType Type
-        {
+        public MsoColorType Type {
             get { throw new NotImplementedException(); }
         }
     }

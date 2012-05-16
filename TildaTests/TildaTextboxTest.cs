@@ -1,7 +1,9 @@
 ﻿using Tilda.Models;
+using TildaTests.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using Microsoft.Office.Interop.PowerPoint;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using System.Collections.Generic;
 
 namespace TildaTests
 {
@@ -66,10 +68,11 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void TildaTextboxConstructorTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id);
-            //Assert.Inconclusive("TODO: Implement code to verify target");
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            TildaTextbox target = new TildaTextbox(shape, id);
+            Assert.AreEqual(shape,target.shape);
+            Assert.AreEqual(id, target.id);
         }
 
         /// <summary>
@@ -77,14 +80,28 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void findXTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //double expected = 0F; // TODO: Initialize to an appropriate value
-            double actual;
-            //actual = target.findX();
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            TildaTextbox target = new TildaTextbox(shape, id);
+
+            //left aligned
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            Assert.AreEqual(Math.Round((shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler()), target.findX());
+
+            //right aligned
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignRight;
+            Assert.AreEqual(Math.Round((shape.Left + shape.Width - shape.TextFrame2.MarginRight) * Settings.Scaler()), target.findX());
+
+            //centered
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignCenter;
+            Assert.AreEqual(Math.Round((shape.Width/2 + shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler()),target.findX());
+
+            //dont care otherwise
         }
 
         /// <summary>
@@ -92,14 +109,37 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void findYTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //double expected = 0F; // TODO: Initialize to an appropriate value
-            //double actual;
-            //actual = target.findY();
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
+            shape.Top = 5f;
+            shape.TextFrame2.MarginTop = 3.2f;
+            shape.TextFrame2.MarginBottom = 4.2f;
+            shape.Height = 100f;
+            TildaTextbox target = new TildaTextbox(shape, id);
+
+            //bottom aligned
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorBottom;
+            Assert.AreEqual((shape.Top + shape.Height - shape.TextFrame2.MarginBottom) * Settings.Scaler(), target.findY(),.001);
+
+            //baseline aligned
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorBottomBaseLine;
+            Assert.AreEqual((shape.Top + shape.Height) * Settings.Scaler(), target.findY(), .001);
+
+            //top aligned
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            Assert.AreEqual((shape.Top + shape.TextFrame2.MarginTop) * Settings.Scaler(), target.findY(), .001);
+
+            //top baseline aligned
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTopBaseline;
+            Assert.AreEqual((shape.Top) * Settings.Scaler(), target.findY(), .001);
+
+            //middle
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorMiddle;
+            Assert.AreEqual((shape.Height / 2 + shape.TextFrame2.MarginTop + shape.Top) * Settings.Scaler(), target.findY(), .001);
+            
+
+            //otherwise don't care!
         }
 
         /// <summary>
@@ -107,16 +147,20 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void fontPositionTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //float addx = 0F; // TODO: Initialize to an appropriate value
-            //float addy = 0F; // TODO: Initialize to an appropriate value
-            //string expected = string.Empty; // TODO: Initialize to an appropriate value
-            //string actual;
-            //actual = target.fontPosition(addx, addy);
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
+            List<MockTextRange2> pgs = new List<MockTextRange2>();
+            pgs.Add(new MockTextRange2("Parapgrah1"));
+            pgs.Add(new MockTextRange2("Paragraph2"));
+            tr.set_Paragraphs(pgs);
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            TildaTextbox target = new TildaTextbox(shape, id);
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            Assert.AreEqual(target.findX(), (shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler());
         }
 
         /// <summary>
@@ -124,7 +168,7 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void fontStyleTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
+            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
             int id = 0; // TODO: Initialize to an appropriate value
             //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
             //string expected = string.Empty; // TODO: Initialize to an appropriate value
@@ -139,7 +183,7 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void positionTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
+            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
             int id = 0; // TODO: Initialize to an appropriate value
             //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
             //float xOffset = 0F; // TODO: Initialize to an appropriate value
@@ -156,7 +200,7 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void tildifyTextTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
+            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
             int id = 0; // TODO: Initialize to an appropriate value
             //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
             //string expected = string.Empty; // TODO: Initialize to an appropriate value
@@ -171,16 +215,20 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void toRaphJSTest() {
-            Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //TildaAnimation[] animationMap = null; // TODO: Initialize to an appropriate value
-            //TildaSlide slide = null; // TODO: Initialize to an appropriate value
-            //string expected = string.Empty; // TODO: Initialize to an appropriate value
-            //string actual;
-            //actual = target.toRaphJS(animationMap, slide);
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
+            List<MockTextRange2> pgs = new List<MockTextRange2>();
+            pgs.Add(new MockTextRange2("Parapgrah1"));
+            pgs.Add(new MockTextRange2("Paragraph2"));
+            tr.set_Paragraphs(pgs);
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            TildaTextbox target = new TildaTextbox(shape, id);
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            Assert.AreEqual(target.findX(), (shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler());
         }
     }
 }
