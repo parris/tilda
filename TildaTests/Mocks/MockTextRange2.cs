@@ -11,6 +11,7 @@ namespace TildaTests.Mocks {
         //private MockTextRange2 paragraphs = new MockTextRange2();
         private List<TextRange2> pgs = new List<TextRange2>();
         private String content = "";
+        private Font2 font = new MockFont();
         private ParagraphFormat2 pgformat = new MockParagraphFormat2();
 
         public MockTextRange2(){
@@ -73,7 +74,7 @@ namespace TildaTests.Mocks {
         }
 
         public Font2 Font {
-            get { throw new NotImplementedException(); }
+            get { return this.font; }
         }
 
         public System.Collections.IEnumerator GetEnumerator() {

@@ -41,11 +41,13 @@ namespace Tilda.Models {
         {
             if(range == null)
                 range = shape.TextFrame2.TextRange;
-            String js = "'font-family':'" + range.Font.Name + "','font-size':'" + scaler * range.Font.Size + "','fill':'" + this.rgbToHex(range.Font.Fill.ForeColor.RGB) + "'";
-            if(range.Font.Bold == MsoTriState.msoCTrue)
+            String js = "'font-size':'" + scaler * range.Font.Size + "','fill':'" + this.rgbToHex(range.Font.Fill.ForeColor.RGB) + "'";
+            if(range.Font.Bold == MsoTriState.msoCTrue || range.Font.Bold == MsoTriState.msoTrue)
                 js += ",'font-weight':'bold'";
-            if(range.Font.Italic == MsoTriState.msoCTrue)
-                js += ",'font-family':'italic'";
+            if(range.Font.Italic == MsoTriState.msoCTrue || range.Font.Italic == MsoTriState.msoTrue)
+                js += ",'font-family':'" + range.Font.Name + " italic'";
+            else
+                js += ",'font-family':'" + range.Font.Name + "'";
             return js;
         }
 

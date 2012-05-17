@@ -64,9 +64,9 @@ namespace Tilda.Models
         {
             if(rgb < 0) //safeguard from weird stuff
                 return "#000000";
-            int blue = (rgb/65536);
-            int green = ((rgb - (65536 * blue)) / 256);
-            int red = rgb - ((blue * 65536) + (green * 256));
+            int blue = (rgb & 255);
+            int green = (rgb >> 8) & 255;
+            int red = (rgb >> 16) & 255;
 
             if (red > 255 || green > 255 || blue > 255)
                 throw new ArgumentOutOfRangeException();

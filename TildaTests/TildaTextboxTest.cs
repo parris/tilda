@@ -91,15 +91,15 @@ namespace TildaTests
 
             //left aligned
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
-            Assert.AreEqual(Math.Round((shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler()), target.findX());
+            Assert.AreEqual((shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler(), target.findX(), .001);
 
             //right aligned
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignRight;
-            Assert.AreEqual(Math.Round((shape.Left + shape.Width - shape.TextFrame2.MarginRight) * Settings.Scaler()), target.findX());
+            Assert.AreEqual((shape.Left + shape.Width - shape.TextFrame2.MarginRight) * Settings.Scaler(), target.findX(), .001);
 
             //centered
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignCenter;
-            Assert.AreEqual(Math.Round((shape.Width/2 + shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler()),target.findX());
+            Assert.AreEqual((shape.Width / 2 + shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler(), target.findX(), .001);
 
             //dont care otherwise
         }
@@ -150,17 +150,21 @@ namespace TildaTests
             PowerPoint.Shape shape = new MockShape();
             int id = 15;
             MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
-            List<MockTextRange2> pgs = new List<MockTextRange2>();
-            pgs.Add(new MockTextRange2("Parapgrah1"));
-            pgs.Add(new MockTextRange2("Paragraph2"));
-            tr.set_Paragraphs(pgs);
-            shape.Left = 7f;
-            shape.Width = 100f;
-            shape.TextFrame2.MarginLeft = 1.1f;
-            shape.TextFrame2.MarginRight = 1.2f;
             TildaTextbox target = new TildaTextbox(shape, id);
+
+            //left aligned
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
-            Assert.AreEqual(target.findX(), (shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler());
+            Assert.AreEqual("'text-anchor': 'start'", target.fontPosition());
+
+            //center aligned
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignCenter;
+            Assert.AreEqual("'text-anchor': 'middle'", target.fontPosition());
+
+            //right aligned
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignRight;
+            Assert.AreEqual("'text-anchor': 'end'", target.fontPosition());
+
+            //otherwise don't care
         }
 
         /// <summary>
@@ -168,46 +172,37 @@ namespace TildaTests
         ///</summary>
         [TestMethod()]
         public void fontStyleTest() {
-            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //string expected = string.Empty; // TODO: Initialize to an appropriate value
-            //string actual;
-            //actual = target.fontStyle();
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
-        }
+            int redRGB = 16711680;
+            string redHex = "#ff0000";
 
-        /// <summary>
-        ///A test for position
-        ///</summary>
-        [TestMethod()]
-        public void positionTest() {
-            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //float xOffset = 0F; // TODO: Initialize to an appropriate value
-            //float yOffset = 0F; // TODO: Initialize to an appropriate value
-            //string expected = string.Empty; // TODO: Initialize to an appropriate value
-            //string actual;
-            //actual = target.position(xOffset, yOffset);
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
-        }
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            TildaTextbox target = new TildaTextbox(shape, id);
 
-        /// <summary>
-        ///A test for getParagraphs
-        ///</summary>
-        [TestMethod()]
-        public void tildifyTextTest() {
-            PowerPoint.Shape shape = null; // TODO: Initialize to an appropriate value
-            int id = 0; // TODO: Initialize to an appropriate value
-            //TildaTextbox target = new TildaTextbox(shape, id); // TODO: Initialize to an appropriate value
-            //string expected = string.Empty; // TODO: Initialize to an appropriate value
-            //string actual;
-            //actual = target.getParagraphs();
-            //Assert.AreEqual(expected, actual);
-            //Assert.Inconclusive("Verify the correctness of this test method.");
+            String expected = "'font-size':'" + Settings.Scaler() * tr.Font.Size + "','fill':'" + redHex + "'";
+            //No bold or italic
+            Assert.AreEqual(expected + ",'font-family':'" + tr.Font.Name + "'", target.fontStyle());
+
+            //Italic only
+            tr.Font.Italic = Microsoft.Office.Core.MsoTriState.msoCTrue;
+            Assert.AreEqual(expected + ",'font-family':'" + tr.Font.Name + " italic'", target.fontStyle());
+            tr.Font.Italic = Microsoft.Office.Core.MsoTriState.msoTrue;
+            Assert.AreEqual(expected + ",'font-family':'" + tr.Font.Name + " italic'", target.fontStyle());
+
+            //Bold only
+            tr.Font.Italic = Microsoft.Office.Core.MsoTriState.msoFalse;
+            tr.Font.Bold = Microsoft.Office.Core.MsoTriState.msoTrue;
+            Assert.AreEqual(expected + ",'font-weight':'bold','font-family':'" + tr.Font.Name + "'", target.fontStyle());
+            tr.Font.Bold = Microsoft.Office.Core.MsoTriState.msoCTrue;
+            Assert.AreEqual(expected + ",'font-weight':'bold','font-family':'" + tr.Font.Name + "'", target.fontStyle());
+
+            //Bold and Italic
+            tr.Font.Italic = Microsoft.Office.Core.MsoTriState.msoCTrue;
+            Assert.AreEqual(expected + ",'font-weight':'bold','font-family':'" + tr.Font.Name + " italic'", target.fontStyle());
         }
 
         /// <summary>

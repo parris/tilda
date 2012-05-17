@@ -105,8 +105,10 @@ namespace TildaTests
         public void rgbToHexTest() {
             TildaShape s = new TildaShape(new MockShape());
             Assert.AreEqual("#ffffff", s.rgbToHex(16777215));
-            Assert.AreEqual("#de727b", s.rgbToHex(8090334));
-            Assert.AreEqual("#de72e7", s.rgbToHex(15168222));
+            Assert.AreEqual("#ff0000", s.rgbToHex(16711680));
+            Assert.AreEqual("#00ff00", s.rgbToHex(65280));
+            Assert.AreEqual("#0000ff", s.rgbToHex(255));
+            Assert.AreEqual("#ea7b5d", s.rgbToHex(15367005));
         }
 
         /// <summary>
