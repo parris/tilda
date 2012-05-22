@@ -1,24 +1,28 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Core;
+using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 
 namespace TildaTests.Mocks {
+
+    [Serializable]
     class MockTextRange2 : TextRange2{
-        //private MockTextRange2 paragraphs = new MockTextRange2();
-        private List<TextRange2> pgs = new List<TextRange2>();
-        private String content = "";
+        private List<TextRange2> trList;
+        private String text = "";
         private Font2 font = new MockFont();
+        private MockTextFrame2 parent;
         private ParagraphFormat2 pgformat = new MockParagraphFormat2();
 
         public MockTextRange2(){
         }
 
-        public MockTextRange2(String content){
-            this.content = content;
+        public MockTextRange2(String content, MockTextFrame2 parent = null){
+            this.text = content;
+            this.parent = parent;
         }
 
         public void AddPeriods() {
@@ -78,7 +82,7 @@ namespace TildaTests.Mocks {
         }
 
         public System.Collections.IEnumerator GetEnumerator() {
-            return this.pgs.GetEnumerator();
+            return this.trList.GetEnumerator();
         }
 
         public TextRange2 InsertAfter(string NewText = "") {
@@ -119,7 +123,7 @@ namespace TildaTests.Mocks {
         }
 
         public dynamic Parent {
-            get { throw new NotImplementedException(); }
+            get { return this.parent; }
         }
 
         public TextRange2 Paste() {
@@ -156,10 +160,10 @@ namespace TildaTests.Mocks {
 
         public string Text {
             get {
-                throw new NotImplementedException();
+                return this.text;
             }
             set {
-                throw new NotImplementedException();
+                this.text = value;
             }
         }
 
@@ -171,16 +175,41 @@ namespace TildaTests.Mocks {
             throw new NotImplementedException();
         }
 
-        public TextRange2 get_Lines(int Start = -1, int Length = -1) {
-            throw new NotImplementedException();
-        }
 
         public TextRange2 get_MathZones(int Start = -1, int Length = -1) {
             throw new NotImplementedException();
         }
 
+        public TextRange2 get_Lines(int Start = -1, int Length = -1) {
+            return this.getLinesOrPgs('~');
+        }
+
         public TextRange2 get_Paragraphs(int Start = -1, int Length = -1) {
-            return new MockTextRange2();
+            return this.getLinesOrPgs('\r');
+        }
+
+        private TextRange2 getLinesOrPgs(char splitChar) {
+            List<TextRange2> result = new List<TextRange2>();
+            this.trList = null;
+            foreach(String t in this.text.Split(splitChar).ToList<String>()) {
+                MockTextRange2 tr = MockHelper.DeepClone(this);
+                tr.Text = t;
+                //this.modTextRange(tr);
+                result.Add(tr);
+            }
+
+            this.trList = result;
+            return MockHelper.DeepClone(this);
+        }
+
+        private void modTextRange(MockTextRange2 tr) {
+            if(tr.Text[0]=='`') {
+                // first level bullet
+                tr.ParagraphFormat.Bullet.Type = MsoBulletType.msoBulletUnnumbered;
+                tr.ParagraphFormat.Bullet.Character = 167; // square
+                tr.ParagraphFormat.IndentLevel = 1;
+            }
+            tr.Text = tr.Text.Substring(1);
         }
 
         public TextRange2 get_Runs(int Start = -1, int Length = -1) {
@@ -193,10 +222,6 @@ namespace TildaTests.Mocks {
 
         public TextRange2 get_Words(int Start = -1, int Length = -1) {
             throw new NotImplementedException();
-        }
-
-        public void set_Paragraphs(List<MockTextRange2> pgraphs) {
-            
         }
     }
 }

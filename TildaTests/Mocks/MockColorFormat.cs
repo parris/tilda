@@ -9,6 +9,7 @@ using Microsoft.Office.Interop.PowerPoint;
 
 namespace TildaTests.Mocks
 {
+    [Serializable]
     class MockColorFormat : Microsoft.Office.Core.ColorFormat {
 
         private int rgb;

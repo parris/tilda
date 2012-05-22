@@ -7,13 +7,22 @@ using Office = Microsoft.Office.Core;
 using Microsoft.Office.Core;
 
 namespace TildaTests.Mocks {
+
+    [Serializable]
     class MockTextFrame2 : PowerPoint.TextFrame2 {
-        private TextRange2 textRange = new MockTextRange2();
+        private TextRange2 textRange;
         private float marginTop = 0f;
         private float marginBottom = 0f;
         private float marginLeft = 0f;
         private float marginRight = 0f;
         private MsoVerticalAnchor anchor = MsoVerticalAnchor.msoAnchorTop;
+
+        public MockTextFrame2(TextRange2 tr = null) {
+            if (tr == null)
+                textRange = new MockTextRange2("",this);
+            else
+                textRange = tr;
+        }
 
         public float MarginBottom {
             get {

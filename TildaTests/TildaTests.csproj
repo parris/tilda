@@ -80,10 +80,12 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Mocks\MockBulletFormat2.cs" />
     <Compile Include="Mocks\MockEffect.cs" />
     <Compile Include="Mocks\MockColorFormat.cs" />
     <Compile Include="Mocks\MockFillFormat.cs" />
     <Compile Include="Mocks\MockFont.cs" />
+    <Compile Include="Mocks\MockHelper.cs" />
     <Compile Include="Mocks\MockParagraphFormat2.cs" />
     <Compile Include="Mocks\MockShape.cs" />
     <Compile Include="Mocks\MockShapes.cs" />

@@ -126,7 +126,6 @@ namespace Tilda.Models {
         public override String toRaphJS() {
             this.currentHeight = 0;
             String js = "";
-            double lineHeight = (shape.TextFrame.TextRange.Font.Size + this.shape.TextFrame.TextRange.ParagraphFormat.SpaceWithin) * this.scaler;
             this.currentHeight = this.findY();
             double shapeX = this.findX();
 

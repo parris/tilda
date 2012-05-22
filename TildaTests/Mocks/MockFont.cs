@@ -7,6 +7,8 @@ using Office = Microsoft.Office.Core;
 using Microsoft.Office.Core;
 
 namespace TildaTests.Mocks {
+
+    [Serializable]
     class MockFont : Font2 {
 
         private String name = "Arial";

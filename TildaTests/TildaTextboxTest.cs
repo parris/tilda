@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace TildaTests
 {
@@ -206,24 +207,186 @@ namespace TildaTests
         }
 
         /// <summary>
-        ///A test for toRaphJS
+        /// Tests to see if 1 paragraph can be generated, 1 line
         ///</summary>
         [TestMethod()]
-        public void toRaphJSTest() {
+        public void canGenerateOneParagraph() {
+            TildaTextbox tb = oneSentenceFixture();
+            int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
+            //no need to check these functions, but we will be adding values to them
+            double x = tb.findX();
+            double y = tb.findY();
+
+            // offsetting text
+            y += (tb.shape.TextFrame2.TextRange.ParagraphFormat.SpaceBefore) * Settings.Scaler();
+
+            String expected = "idsToAnimate = new Array();"+
+                "preso.shapes.push(preso.paper.text("+x+","+y+",'Paragraph1').attr("
+                + "{'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Tests to see if 1 paragraph can be generate, 3 lines
+        ///</summary>
+        [TestMethod()]
+        public void canGenerateOneParagraphWithMultipleLines() {
+            TildaTextbox tb = multiLineSentenceFixture();
+
+            int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
+
+            double x = tb.findX();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
+            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler();
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+
+            String expected = "idsToAnimate = new Array();preso.shapes.push("+
+                "preso.paper.text(" + x + "," + y1 + ",'Line1').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y2 + ",'Line2').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y3 + ",'This is Line the 3rd').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Tests to see if 2 paragraph can be generate, 3 lines
+        ///</summary>
+        [TestMethod()]
+        public void canGenerateMultipleParagraphsWithMultipleLines() {
+            TildaTextbox tb = multiLineAndParagraphFixture();
+
+            int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
+
+            double x = tb.findX();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
+            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler();
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+            double y4 = y3 + fontsize + (pgformat.SpaceAfter + pgformat.SpaceBefore) * Settings.Scaler();
+            double y5 = y4 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+            double y6 = y5 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler();
+
+            String expected = "idsToAnimate = new Array();"+
+                "preso.shapes.push(preso.paper.text(" + x + "," + y1 + ",'Paragraph1Line1').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y2 + ",'Line2').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y3 + ",'Line3').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "idsToAnimate = new Array();"+
+                "preso.shapes.push(preso.paper.text(" + x + "," + y4 + ",'Paragraph2Line3').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y5 + ",'Line4').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x + "," + y6 + ",'Line5').attr({'font-size':'" + fontsize + "','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Tests to see if a few bullets can be created
+        ///</summary>
+        [TestMethod()]
+        public void canGenerateSingleLevelBullets() {
+            TildaTextbox tb = singleLevelBulletsFixture();
+
+            int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
+            double bulletPadding = fontsize / 8;
+
+            double x = tb.findX();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
+            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
+
+            String expected = "idsToAnimate = new Array();" +
+                "preso.shapes.push(preso.paper.rect(62.2000007629395,10.3999996185303,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
+                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(38.2000007629395,50.7999992370605,'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(38.2000007629395,88.1999988555908,'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+            String actual = tb.toRaphJS();
+            //Assert.AreEqual(expected, actual);
+        }
+
+        //some fixtures, these should prob end up in their own files. Not quite sure what to do with them in C# yet.
+        private TildaTextbox oneSentenceFixture() {
             PowerPoint.Shape shape = new MockShape();
             int id = 15;
-            MockTextRange2 tr = (MockTextRange2)shape.TextFrame2.TextRange;
-            List<MockTextRange2> pgs = new List<MockTextRange2>();
-            pgs.Add(new MockTextRange2("Parapgrah1"));
-            pgs.Add(new MockTextRange2("Paragraph2"));
-            tr.set_Paragraphs(pgs);
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange; 
+            tr.Text = "Paragraph1";
             shape.Left = 7f;
             shape.Width = 100f;
             shape.TextFrame2.MarginLeft = 1.1f;
             shape.TextFrame2.MarginRight = 1.2f;
-            TildaTextbox target = new TildaTextbox(shape, id);
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
-            Assert.AreEqual(target.findX(), (shape.Left + shape.TextFrame2.MarginLeft) * Settings.Scaler());
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox multiLineSentenceFixture() {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            tr.Text = "Line1~Line2~This is Line the 3rd";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox multiLineAndParagraphFixture() {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            tr.Text = "Paragraph1Line1~Line2~Line3\rParagraph2Line3~Line4~Line5";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox singleLevelBulletsFixture() {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            // ` character is a level 1 bullet when the mock renders
+            tr.Text = "`Bullet1~`Bullet2~`Bullet3";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
         }
     }
 }

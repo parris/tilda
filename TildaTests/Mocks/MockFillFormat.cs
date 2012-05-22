@@ -8,6 +8,7 @@ using Microsoft.Office.Core;
 
 namespace TildaTests.Mocks
 {
+    [Serializable]
     class MockFillFormat : FillFormat
     {
         private ColorFormat backColor;

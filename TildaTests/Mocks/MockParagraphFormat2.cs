@@ -7,8 +7,17 @@ using Office = Microsoft.Office.Core;
 using Microsoft.Office.Core;
 
 namespace TildaTests.Mocks {
+
+    [Serializable]
     class MockParagraphFormat2 : ParagraphFormat2 {
         private MsoParagraphAlignment alignment = MsoParagraphAlignment.msoAlignLeft;
+        private BulletFormat2 bullForm = new MockBulletFormat2();
+        private float spaceWithin = .5f;
+        private float spaceAfter = .5f;
+        private float spaceBefore = .5f;
+        private int indentLevel = 1;
+        private float levelIndent = 8f;
+        private float firstLineIndent = 15f;
 
         public MsoParagraphAlignment Alignment {
             get {
@@ -33,7 +42,7 @@ namespace TildaTests.Mocks {
         }
 
         public BulletFormat2 Bullet {
-            get { throw new NotImplementedException(); }
+            get { return this.bullForm; }
         }
 
         public int Creator {
@@ -51,10 +60,10 @@ namespace TildaTests.Mocks {
 
         public float FirstLineIndent {
             get {
-                throw new NotImplementedException();
+                return this.firstLineIndent;
             }
             set {
-                throw new NotImplementedException();
+                this.firstLineIndent = value;
             }
         }
 
@@ -69,19 +78,19 @@ namespace TildaTests.Mocks {
 
         public int IndentLevel {
             get {
-                throw new NotImplementedException();
+                return this.indentLevel;
             }
             set {
-                throw new NotImplementedException();
+                this.indentLevel = value;
             }
         }
 
         public float LeftIndent {
             get {
-                throw new NotImplementedException();
+                return this.levelIndent;
             }
             set {
-                throw new NotImplementedException();
+                this.levelIndent = value;
             }
         }
 
@@ -127,28 +136,28 @@ namespace TildaTests.Mocks {
 
         public float SpaceAfter {
             get {
-                throw new NotImplementedException();
+                return this.spaceAfter;
             }
             set {
-                throw new NotImplementedException();
+                this.spaceAfter = value;
             }
         }
 
         public float SpaceBefore {
             get {
-                throw new NotImplementedException();
+                return this.spaceBefore;
             }
             set {
-                throw new NotImplementedException();
+                this.spaceBefore = value;
             }
         }
 
         public float SpaceWithin {
             get {
-                throw new NotImplementedException();
+                return this.spaceWithin;
             }
             set {
-                throw new NotImplementedException();
+                this.spaceWithin = value;
             }
         }
 
