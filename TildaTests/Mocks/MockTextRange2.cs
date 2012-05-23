@@ -194,7 +194,7 @@ namespace TildaTests.Mocks {
             foreach(String t in this.text.Split(splitChar).ToList<String>()) {
                 MockTextRange2 tr = MockHelper.DeepClone(this);
                 tr.Text = t;
-                //this.modTextRange(tr);
+                this.modTextRange(tr);
                 result.Add(tr);
             }
 
@@ -203,13 +203,15 @@ namespace TildaTests.Mocks {
         }
 
         private void modTextRange(MockTextRange2 tr) {
+            if(tr.Text.Length == 0)
+                return;
             if(tr.Text[0]=='`') {
                 // first level bullet
                 tr.ParagraphFormat.Bullet.Type = MsoBulletType.msoBulletUnnumbered;
                 tr.ParagraphFormat.Bullet.Character = 167; // square
                 tr.ParagraphFormat.IndentLevel = 1;
+                tr.Text = tr.Text.Substring(1);
             }
-            tr.Text = tr.Text.Substring(1);
         }
 
         public TextRange2 get_Runs(int Start = -1, int Length = -1) {

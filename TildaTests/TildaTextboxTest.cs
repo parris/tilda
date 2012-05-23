@@ -301,11 +301,11 @@ namespace TildaTests
 
             String expected = "idsToAnimate = new Array();" +
                 "preso.shapes.push(preso.paper.rect(62.2000007629395,10.3999996185303,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
                 "preso.shapes.push(preso.paper.text(38.2000007629395,50.7999992370605,'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
                 "preso.shapes.push(preso.paper.text(38.2000007629395,88.1999988555908,'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
             String actual = tb.toRaphJS();
-            //Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected, actual);
         }
 
         //some fixtures, these should prob end up in their own files. Not quite sure what to do with them in C# yet.
