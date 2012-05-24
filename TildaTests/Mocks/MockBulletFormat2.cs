@@ -11,9 +11,12 @@ namespace TildaTests.Mocks {
     [Serializable]
     class MockBulletFormat2 : BulletFormat2  {
         private MsoBulletType type = MsoBulletType.msoBulletNone;
+        private MsoNumberedBulletStyle style = MsoNumberedBulletStyle.msoBulletArabicPeriod;
         private Font2 font;
         private int character = 167;
         private float relativeSize = 2;
+        private int startValue = 1;
+        public int number = 1;
 
         public MockBulletFormat2(Font2 font = null) {
             if (font==null)
@@ -44,7 +47,7 @@ namespace TildaTests.Mocks {
         }
 
         public int Number {
-            get { throw new NotImplementedException(); }
+            get { return this.number; }
         }
 
         public dynamic Parent {
@@ -66,19 +69,19 @@ namespace TildaTests.Mocks {
 
         public int StartValue {
             get {
-                throw new NotImplementedException();
+                return this.startValue;
             }
             set {
-                throw new NotImplementedException();
+                this.startValue = 0 ;
             }
         }
 
         public MsoNumberedBulletStyle Style {
             get {
-                throw new NotImplementedException();
+                return this.style;
             }
             set {
-                throw new NotImplementedException();
+                this.style = value;
             }
         }
 

@@ -185,6 +185,8 @@ namespace TildaTests.Mocks {
         }
 
         public TextRange2 get_Paragraphs(int Start = -1, int Length = -1) {
+            if(this.Parent.VerticalAnchor == MsoVerticalAnchor.msoAnchorBottom)
+                return this.getLinesOrPgs('\v');
             return this.getLinesOrPgs('\r');
         }
 
@@ -226,6 +228,17 @@ namespace TildaTests.Mocks {
                 tr.ParagraphFormat.IndentLevel = 3;
                 tr.ParagraphFormat.LeftIndent = tr.ParagraphFormat.LeftIndent * 2;
                 tr.ParagraphFormat.FirstLineIndent = tr.ParagraphFormat.FirstLineIndent * 2;
+                tr.Text = tr.Text.Substring(1);
+            } else if(tr.Text[0] == '%' || tr.Text[0] == '@') {
+                // third level bullet
+                tr.ParagraphFormat.Bullet.Type = MsoBulletType.msoBulletNumbered;
+                if(tr.Text[0] == '@') {
+                    MockBulletFormat2 bull = (MockBulletFormat2)tr.ParagraphFormat.Bullet;
+                    bull.number = 2;
+                }
+                tr.ParagraphFormat.IndentLevel = 1;
+                tr.ParagraphFormat.LeftIndent = tr.ParagraphFormat.LeftIndent;
+                tr.ParagraphFormat.FirstLineIndent = tr.ParagraphFormat.FirstLineIndent;
                 tr.Text = tr.Text.Substring(1);
             }
         }

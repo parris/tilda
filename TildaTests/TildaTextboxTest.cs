@@ -386,10 +386,118 @@ namespace TildaTests
         }
 
         /// <summary>
-        /// Tests to see if a multilevel bullets can be generated at the paragraph level
+        /// Tests to see if a numbered bullets will work
         ///</summary>
         [TestMethod()]
         public void numberedBulletsPossible() {
+            TildaTextbox tb = numberedBulletsFixture();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
+            //not testing position, just want 1. and 2. to appear
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(true,actual.Contains(",'1.')"));
+            Assert.AreEqual(true,actual.Contains(",'2.')"));
+        }
+
+        /// <summary>
+        /// Tests to see if number bullets can be styled differently
+        ///</summary>
+        [TestMethod()]
+        public void numberedBulletStylesWorkPossible() {
+            TildaTextbox tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaLCParenBoth);
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'(a)')"));
+            Assert.AreEqual(true, actual.Contains(",'(b)')"));
+            
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaLCParenRight);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'a)')"));
+            Assert.AreEqual(true, actual.Contains(",'b)')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaLCPeriod);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'a.')"));
+            Assert.AreEqual(true, actual.Contains(",'b.')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaUCParenBoth);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'(A)')"));
+            Assert.AreEqual(true, actual.Contains(",'(B)')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaUCParenRight);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'A)')"));
+            Assert.AreEqual(true, actual.Contains(",'B)')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletAlphaUCPeriod);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'A.')"));
+            Assert.AreEqual(true, actual.Contains(",'B.')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicDBPeriod);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1.')"));
+            Assert.AreEqual(true, actual.Contains(",'2.')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicDBPlain);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1.')"));
+            Assert.AreEqual(true, actual.Contains(",'2.')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicParenBoth);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'(1)')"));
+            Assert.AreEqual(true, actual.Contains(",'(2)')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicParenRight);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1)')"));
+            Assert.AreEqual(true, actual.Contains(",'2)')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicPeriod);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1.')"));
+            Assert.AreEqual(true, actual.Contains(",'2.')"));
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicPlain);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1.')"));
+            Assert.AreEqual(true, actual.Contains(",'2.')"));
+
+            //else, just one test, but basically all other options should follow:
+
+            tb = numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletCircleNumDBPlain);
+            actual = tb.toRaphJS();
+            Assert.AreEqual(true, actual.Contains(",'1.')"));
+            Assert.AreEqual(true, actual.Contains(",'2.')"));
+        }
+        
+
+        /// <summary>
+        /// Tests to see if both bullets and text can be added
+        ///</summary>
+        [TestMethod()]
+        public void bulletsAndParagraphsCanBeMixed() {
+            TildaTextbox tb = bulletsAndTextFixture();
+            String actual = tb.toRaphJS();
+            Assert.AreEqual(2, StringUtil.CountStringOccurrences(actual,"preso.paper.rect"));
+        }
+
+
+        /// <summary>
+        /// Tests to see if text can be bottom aligned
+        ///</summary>
+        [TestMethod()]
+        public void textCanBeBottomAligned() {
+            TildaTextbox tb = bottomAnchorFixture();
+            String actual = tb.toRaphJS();
+            //essentially they should be in the reverse order, the rest of the positioning is tested elsewhere
+            int first = actual.IndexOf("This is Line the 3rd");
+            int second = actual.IndexOf("Line2");
+            int third = actual.IndexOf("Line1");
+            Assert.AreEqual(true, first < second);
+            Assert.AreEqual(true, second < third);
+
+
         }
 
         //some fixtures, these should prob end up in their own files. Not quite sure what to do with them in C# yet.
@@ -515,12 +623,55 @@ namespace TildaTests
             return new TildaTextbox(shape, id);
         }
 
-        private TildaTextbox numberedBulletsFixture() {
+        private TildaTextbox numberedBulletsFixture(Microsoft.Office.Core.MsoNumberedBulletStyle style = Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicPeriod) {
             PowerPoint.Shape shape = new MockShape();
             int id = 15;
             Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
             // ` character is a level 1 bullet when the mock renders
-            tr.Text = "`Bullet1~Test2\r^Bullet2~\r*Bullet3";
+            tr.Text = "%Bullet1\r@Bullet2";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            tr.ParagraphFormat.Bullet.Style = style;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox bulletsAndTextFixture(Microsoft.Office.Core.MsoNumberedBulletStyle style = Microsoft.Office.Core.MsoNumberedBulletStyle.msoBulletArabicPeriod) {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            // ` character is a level 1 bullet when the mock renders
+            tr.Text = "some test here and such\rmore text here and such\rand more\r`Bullet1\r`Bullet2";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            tr.ParagraphFormat.Bullet.Style = style;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox bottomAnchorFixture() {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            tr.Text = "Line1\vLine2\vThis is Line the 3rd";
             shape.Left = 7f;
             shape.Width = 100f;
             shape.TextFrame2.MarginLeft = 1.1f;
@@ -532,8 +683,9 @@ namespace TildaTests
             int redRGB = 16711680;
             tr.Font.Fill.ForeColor.RGB = redRGB;
             shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
-            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorBottom;
             return new TildaTextbox(shape, id);
         }
+
     }
 }
