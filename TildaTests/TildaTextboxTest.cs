@@ -289,21 +289,26 @@ namespace TildaTests
         [TestMethod()]
         public void canGenerateSingleLevelBullets() {
             TildaTextbox tb = singleLevelBulletsFixture();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
 
             int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
             double bulletPadding = fontsize / 8;
 
+            float bulletSize = (pgformat.Bullet.RelativeSize * (tb.shape.TextFrame2.TextRange.Font.Size / 4)) * Settings.Scaler();
+
             double x = tb.findX();
-            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
-            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
-            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
-            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
+            double x1 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.FirstLineIndent + tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent)*Settings.Scaler();
+            double x2 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent + bulletPadding) * Settings.Scaler();
+            double y = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler();
+            double y1 = y + bulletPadding;
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
 
             String expected = "idsToAnimate = new Array();" +
-                "preso.shapes.push(preso.paper.rect(62.2000007629395,10.3999996185303,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,50.7999992370605,'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,88.1999988555908,'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+                "preso.shapes.push(preso.paper.rect(" + x1 + "," + y + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y1 + ",'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y2 + ",'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y3 + ",'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
             String actual = tb.toRaphJS();
             Assert.AreEqual(expected, actual);
         }
@@ -314,21 +319,26 @@ namespace TildaTests
         [TestMethod()]
         public void linesSettingsCantGenerateMultiLevelBullets() {
             TildaTextbox tb = multiLevelLineBulletsFixture();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
 
             int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
             double bulletPadding = fontsize / 8;
 
+            float bulletSize = (pgformat.Bullet.RelativeSize * (tb.shape.TextFrame2.TextRange.Font.Size / 4)) * Settings.Scaler();
+
             double x = tb.findX();
-            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
-            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
-            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
-            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
+            double x1 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.FirstLineIndent + tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent) * Settings.Scaler();
+            double x2 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent + bulletPadding) * Settings.Scaler();
+            double y = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler();
+            double y1 = y + bulletPadding;
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
 
             String expected = "idsToAnimate = new Array();" +
-                "preso.shapes.push(preso.paper.rect(62.2000007629395,10.3999996185303,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,50.7999992370605,'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
-                "preso.shapes.push(preso.paper.text(38.2000007629395,88.1999988555908,'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
+                "preso.shapes.push(preso.paper.rect(" + x1 + "," + y + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y1 + ",'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y2 + ",'Bullet2').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y3 + ",'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
             String actual = tb.toRaphJS();
             Assert.AreEqual(expected, actual);
         }
@@ -339,27 +349,47 @@ namespace TildaTests
         [TestMethod()]
         public void canGenerateMultiLevelBullets() {
             TildaTextbox tb = multiLevelParagraphBulletsFixture();
+            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
 
             int fontsize = (int)(tb.shape.TextFrame2.TextRange.Font.Size * Settings.Scaler());
             double bulletPadding = fontsize / 8;
 
-            double x = tb.findX();
-            Microsoft.Office.Core.ParagraphFormat2 pgformat = tb.shape.TextFrame2.TextRange.ParagraphFormat;
-            double y1 = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
-            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
-            double y3 = y2 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding * 2;
+            float bulletSize = (pgformat.Bullet.RelativeSize * (tb.shape.TextFrame2.TextRange.Font.Size / 4)) * Settings.Scaler();
 
-            String expected = "idsToAnimate = new Array();preso.shapes.push(preso.paper.rect(62.2000007629395,10.3999996185303,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));"+
-                "preso.shapes.push(preso.paper.text(38.2000007629395,13.3999996185303,'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':"+
-                "'r0','text-anchor': 'start'}));preso.shapes.push(preso.paper.text(38.2000007629395,50.7999992370605,'Test2').attr({'font-size':'24','fill':'#ff0000','font-family':"+
-                "'Verdana','transformation':'r0','text-anchor': 'start'}));idsToAnimate = new Array();preso.shapes.push(preso.paper.rect(108.200000762939,98.5999984741211,12,12)."+
-                "attr({'stroke':'#ff0000','fill':'#ff0000'}));preso.shapes.push(preso.paper.text(54.2000007629395,101.599998474121,'Bullet2').attr({'font-size':'24','fill':'#ff0000'"+
-                ",'font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));preso.shapes.push(preso.paper.text(54.2000007629395,138.999998092651,'').attr({'font-size':"+
+            double x = tb.findX();
+            double x1 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.FirstLineIndent + tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent) * Settings.Scaler();
+            double x2 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent + bulletPadding) * Settings.Scaler();
+            double x3 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.FirstLineIndent + tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent) * 2 * Settings.Scaler(); // as defined in mock text range 2
+            double x4 = x + (tb.shape.TextFrame2.TextRange.ParagraphFormat.LeftIndent * 2 + bulletPadding) * Settings.Scaler();
+
+            double y = tb.findY() + (pgformat.SpaceBefore) * Settings.Scaler();
+            double y1 = y + bulletPadding;
+            double y2 = y1 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
+            double y3 = y2 + fontsize + (pgformat.SpaceAfter + pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
+            double y4 = y3 + bulletPadding;
+            double y5 = y4 + fontsize + (pgformat.SpaceAfter) * Settings.Scaler() + bulletPadding;
+            double y6 = y5 + fontsize + (pgformat.SpaceAfter + pgformat.SpaceBefore) * Settings.Scaler() + bulletPadding;
+            double y7 = y6 + bulletPadding;
+
+            String expected = "idsToAnimate = new Array();"+
+                "preso.shapes.push(preso.paper.rect(" + x1 + "," + y + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#ff0000','fill':'#ff0000'}));" +
+                "preso.shapes.push(preso.paper.text(" + x2 + "," + y1 + ",'Bullet1').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':"+
+                "'r0','text-anchor': 'start'}));preso.shapes.push(preso.paper.text(" + x2 + "," + y2 + ",'Test2').attr({'font-size':'24','fill':'#ff0000','font-family':" +
+                "'Verdana','transformation':'r0','text-anchor': 'start'}));idsToAnimate = new Array();preso.shapes.push(preso.paper.rect(" + x3 + "," + y3 +"," + bulletSize + "," + bulletSize + ")." +
+                "attr({'stroke':'#ff0000','fill':'#ff0000'}));preso.shapes.push(preso.paper.text(" + x4 + "," + y4 + ",'Bullet2').attr({'font-size':'24','fill':'#ff0000'" +
+                ",'font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));preso.shapes.push(preso.paper.text(" + x4 + "," + y5 + ",'').attr({'font-size':" +
                 "'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));idsToAnimate = new Array();preso.shapes.push(preso.paper."+
-                "rect(108.200000762939,186.799997329712,12,12).attr({'stroke':'#ff0000','fill':'#ff0000'}));preso.shapes.push(preso.paper.text(54.2000007629395,189.799997329712,"+
+                "rect(" + x3 + "," + y6 + "," + bulletSize + "," + bulletSize + ").attr({'stroke':'#ff0000','fill':'#ff0000'}));preso.shapes.push(preso.paper.text(" + x4 + "," + y7 + "," +
                 "'Bullet3').attr({'font-size':'24','fill':'#ff0000','font-family':'Verdana','transformation':'r0','text-anchor': 'start'}));";
             String actual = tb.toRaphJS();
             Assert.AreEqual(expected, actual);
+        }
+
+        /// <summary>
+        /// Tests to see if a multilevel bullets can be generated at the paragraph level
+        ///</summary>
+        [TestMethod()]
+        public void numberedBulletsPossible() {
         }
 
         //some fixtures, these should prob end up in their own files. Not quite sure what to do with them in C# yet.
@@ -465,6 +495,27 @@ namespace TildaTests
         }
 
         private TildaTextbox multiLevelParagraphBulletsFixture() {
+            PowerPoint.Shape shape = new MockShape();
+            int id = 15;
+            Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
+            // ` character is a level 1 bullet when the mock renders
+            tr.Text = "`Bullet1~Test2\r^Bullet2~\r*Bullet3";
+            shape.Left = 7f;
+            shape.Width = 100f;
+            shape.TextFrame2.MarginLeft = 1.1f;
+            shape.TextFrame2.MarginRight = 1.2f;
+            tr.Font.Name = "Verdana";
+            tr.Font.Size = 12f;
+            tr.ParagraphFormat.SpaceBefore = 5.2f;
+            tr.ParagraphFormat.SpaceAfter = 5.2f;
+            int redRGB = 16711680;
+            tr.Font.Fill.ForeColor.RGB = redRGB;
+            shape.TextFrame2.TextRange.ParagraphFormat.Alignment = Microsoft.Office.Core.MsoParagraphAlignment.msoAlignLeft;
+            shape.TextFrame2.VerticalAnchor = Microsoft.Office.Core.MsoVerticalAnchor.msoAnchorTop;
+            return new TildaTextbox(shape, id);
+        }
+
+        private TildaTextbox numberedBulletsFixture() {
             PowerPoint.Shape shape = new MockShape();
             int id = 15;
             Microsoft.Office.Core.TextRange2 tr = shape.TextFrame2.TextRange;
