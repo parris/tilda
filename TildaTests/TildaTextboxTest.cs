@@ -496,9 +496,9 @@ namespace TildaTests
             int third = actual.IndexOf("Line1");
             Assert.AreEqual(true, first < second);
             Assert.AreEqual(true, second < third);
-
-
         }
+
+        //TODO: animation test
 
         //some fixtures, these should prob end up in their own files. Not quite sure what to do with them in C# yet.
         private TildaTextbox oneSentenceFixture() {

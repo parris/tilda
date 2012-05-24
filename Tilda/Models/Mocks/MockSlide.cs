@@ -179,7 +179,7 @@ namespace Tilda.Models {
         }
 
         public Shapes Shapes {
-            get { throw new NotImplementedException(); }
+            get { return null; }
         }
 
         public int SlideID {

@@ -5,6 +5,7 @@ using System.Text;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Core;
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using Tilda.Models;
 
 namespace TildaTests.Mocks
 {
@@ -21,13 +22,18 @@ namespace TildaTests.Mocks
         private string name = "";
         public Microsoft.Office.Core.MsoShapeType type;
         private int id = 5;
+        private int z = 0;
+        private MsoTriState isVisible;
 
-        public MockShape(Microsoft.Office.Core.MsoShapeType type = Microsoft.Office.Core.MsoShapeType.msoTextBox)
+        public MockShape(Microsoft.Office.Core.MsoShapeType type = Microsoft.Office.Core.MsoShapeType.msoTextBox,int z = 1)
         {
             this.textEffect = new MockTextEffectFormat();
             this.textFrame = new MockTextFrame2();
             this.fill = new MockFillFormat();
             this.type = type; //default = tb
+            this.z = 1;
+
+            this.id = Int32.Parse(Settings.NextRandomValue().Split('-')[0]);
         }
 
         public FillFormat Fill
@@ -492,19 +498,20 @@ namespace TildaTests.Mocks
 
         public MsoTriState Visible {
             get {
-                throw new NotImplementedException();
+                return this.isVisible;
             }
             set {
-                throw new NotImplementedException();
+                this.isVisible = value;
             }
         }
 
         public void ZOrder(MsoZOrderCmd ZOrderCmd) {
-            throw new NotImplementedException();
+            if(ZOrderCmd == MsoZOrderCmd.msoSendToBack)
+                this.z = 0;
         }
 
         public int ZOrderPosition {
-            get { throw new NotImplementedException(); }
+            get { return this.z; }
         }
     }
 }

@@ -87,6 +87,7 @@
     <Compile Include="Mocks\MockFont.cs" />
     <Compile Include="Mocks\MockHelper.cs" />
     <Compile Include="Mocks\MockParagraphFormat2.cs" />
+    <Compile Include="Mocks\MockSequences.cs" />
     <Compile Include="Mocks\MockShape.cs" />
     <Compile Include="Mocks\MockShapes.cs" />
     <Compile Include="Mocks\MockSlide.cs" />

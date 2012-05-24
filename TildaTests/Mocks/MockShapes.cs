@@ -139,7 +139,7 @@ namespace TildaTests.Mocks
 
         public int Count
         {
-            get { throw new NotImplementedException(); }
+            get { return shapes.Count; }
         }
 
         public int Creator

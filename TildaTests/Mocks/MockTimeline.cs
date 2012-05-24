@@ -8,7 +8,7 @@ namespace TildaTests.Mocks
 {
     class MockTimeline : TimeLine
     {
-
+        Sequence mainSequence = new MockSequence();
         public Application Application
         {
             get { return this.Application; }
@@ -21,7 +21,7 @@ namespace TildaTests.Mocks
 
         public Sequence MainSequence
         {
-            get { throw new NotImplementedException(); }
+            get { return this.mainSequence; }
         }
 
         public dynamic Parent

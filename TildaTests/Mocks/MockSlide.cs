@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Office.Interop.PowerPoint;
+using System.IO;
 
 namespace TildaTests.Mocks
 {
@@ -131,7 +132,7 @@ namespace TildaTests.Mocks
 
         public void Export(string FileName, string FilterName, int ScaleWidth = 0, int ScaleHeight = 0)
         {
-            throw new NotImplementedException();
+            File.WriteAllLines(FileName,new String[2]{"testing","pizza"});
         }
 
         public Microsoft.Office.Core.MsoTriState FollowMasterBackground
