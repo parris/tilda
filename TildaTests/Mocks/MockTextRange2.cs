@@ -211,6 +211,22 @@ namespace TildaTests.Mocks {
                 tr.ParagraphFormat.Bullet.Character = 167; // square
                 tr.ParagraphFormat.IndentLevel = 1;
                 tr.Text = tr.Text.Substring(1);
+            } else if(tr.Text[0] == '^') {
+                // second level bullet
+                tr.ParagraphFormat.Bullet.Type = MsoBulletType.msoBulletUnnumbered;
+                tr.ParagraphFormat.Bullet.Character = 167; // square
+                tr.ParagraphFormat.IndentLevel = 2;
+                tr.ParagraphFormat.LeftIndent = tr.ParagraphFormat.LeftIndent * 2;
+                tr.ParagraphFormat.FirstLineIndent = tr.ParagraphFormat.FirstLineIndent * 2;
+                tr.Text = tr.Text.Substring(1);
+            } else if(tr.Text[0] == '*') {
+                // third level bullet
+                tr.ParagraphFormat.Bullet.Type = MsoBulletType.msoBulletUnnumbered;
+                tr.ParagraphFormat.Bullet.Character = 167; // square
+                tr.ParagraphFormat.IndentLevel = 3;
+                tr.ParagraphFormat.LeftIndent = tr.ParagraphFormat.LeftIndent * 2;
+                tr.ParagraphFormat.FirstLineIndent = tr.ParagraphFormat.FirstLineIndent * 2;
+                tr.Text = tr.Text.Substring(1);
             }
         }
 
