@@ -14,11 +14,18 @@
             margin:0 auto;
             text-align: center;
         }
+        #audio-player 
+        {
+            height:0;
+            width:0;
+        }
     </style>
 </head>
 <body>
     <div id="holder"></div>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <div id="audio-player" class="jp-player"></div>
+    <script type="text/javascript" src="js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.jplayer.min.js"></script>
     <script type="text/javascript" src="js/lib/raphael-min.js"></script>
     <script type="text/javascript" src="settings.js"></script>
     <script type="text/javascript" src="js/Presentation.js"></script>

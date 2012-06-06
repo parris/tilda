@@ -4,7 +4,36 @@ function Presentation(element, width, height) {
     this.shapes = new Array();
     this.animations = new Array();
     this.slides = new Array();
+    this.currentSlideSettings = new Object();
     this.currentSlide = 0;
+}
+
+Presentation.prototype.setUpAnimations = function() {
+    var timingMode = this.currentSlideSettings.timingMode;
+    if (typeof timingMode === "undefined") {
+        return false;
+    }
+
+    if (this.currentSlideSettings.timingMode == "audio") {
+        //first change the timings
+        var timeTotal = 0;
+        for (var i = 0; i < preso.animations.length; i++) {
+            preso.animations[i].delay = preso.animations[i].delay / 1000;
+        }
+
+        //attach timeupdate handler to jplayer
+        $("#audio-player").bind($.jPlayer.event.timeupdate + ".jp-player", function(event) {
+            if (event.jPlayer.status.currentTime > preso.animations[0].delay) {
+                var anim = preso.animations.shift();
+                for (var i = 0; i < anim.ids.length; i++) {
+                    preso.shapes[anim.ids[i]].animate(anim.animate, anim.dur);
+                }
+            }
+        });
+    } else {
+        //otherwise use internal timer
+        this.checkNextAnimations();
+    }
 }
 
 Presentation.prototype.checkNextAnimations = function() {
@@ -25,18 +54,19 @@ Presentation.prototype.playNextAnimation = function() {
 Presentation.prototype.play = function(slideNum) {
     this.clearSlide();
     if (typeof slideNum !== "undefined")
-        this.slides[parseInt(slideNum)]();
+        this.currentSlideSettings = this.slides[parseInt(slideNum)]();
     else
-        this.slides[0]();
+        this.currentSlideSettings = this.slides[0]();
     this.currentSlide = 0;
+    this.setUpAnimations();
 }
 
 Presentation.prototype.next = function() {
     if (this.slides.length > this.currentSlide + 1) {
         this.currentSlide++;
         this.clearSlide();
-        this.slides[this.currentSlide]();
-        this.checkNextAnimations();
+        this.currentSlideSettings = this.slides[this.currentSlide]();
+        this.setUpAnimations();
 
     }
 }
@@ -45,8 +75,8 @@ Presentation.prototype.prev = function() {
     if (this.currentSlide - 1 > 0) {
         this.currentSlide--;
         this.clearSlide();
-        this.slides[this.currentSlide]();
-        this.checkNextAnimations();
+        this.currentSlideSettings = this.slides[this.currentSlide]();
+        this.setUpAnimations();
     }
 }
 
@@ -121,8 +151,6 @@ $(function() {
             preso.play();
         else
             preso.play(startOn);
-        //run animations
-        preso.checkNextAnimations();
         //wrap up the paper
         preso.paper.setFinish();
         Presentation.resize();

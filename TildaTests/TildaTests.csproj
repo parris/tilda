@@ -97,6 +97,7 @@
     <Compile Include="Mocks\MockTimeline.cs" />
     <Compile Include="Mocks\MockTiming.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TildaAudioTest.cs" />
     <Compile Include="TildaPictureTest.cs" />
     <Compile Include="TildaShapeTest.cs" />
     <Compile Include="TildaSlideTest.cs" />

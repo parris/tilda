@@ -32,17 +32,21 @@ namespace Tilda.Models
 
             //shapes, new count+1 for background
             int count = 0;
+            bool hasAudio = false;
 
             foreach (PowerPoint.Shape shape in shapes) {
                 if (shape.Type.Equals(Office.MsoShapeType.msoPlaceholder)||shape.Type.Equals(Office.MsoShapeType.msoTextBox)){
                     shapeMap.Add(shape.Id, new TildaTextbox(shape, count));
-                } else //if (shape.Type.Equals(Office.MsoShapeType.msoPicture))
+                } else if(shape.Type.Equals(Office.MsoShapeType.msoMedia)) {
+                    shapeMap.Add(shape.Id, new TildaAudio(shape, count));
+                    hasAudio = true;
+                } else { //if (shape.Type.Equals(Office.MsoShapeType.msoPicture))
                     shapeMap.Add(shape.Id, new TildaPicture(shape, count)); //for now everything else can be an image!
+                }
                 count++;
             }
 
             this.mapAnimationToShape(slide.TimeLine.MainSequence, shapeMap);
-
             js += "var idsToAnimate = new Array();";
             foreach (TildaShape shape in shapeMap.Values) {
                 if (shape == null)
@@ -51,6 +55,12 @@ namespace Tilda.Models
             }
 
             js += this.exportBackgroundImage(shapes);
+
+            if(hasAudio) {
+                js += "return {\"timingMode\":\"audio\"};";
+            } else {
+                js += "return {\"timingMode\":\"normal\"};";
+            }
             js += "}";
 
             //js += .toRaphJS(shapeMap, animationMap);

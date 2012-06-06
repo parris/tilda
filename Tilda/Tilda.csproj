@@ -187,6 +187,7 @@
     <Compile Include="Models\Mocks\MockPresentation.cs" />
     <Compile Include="Models\Mocks\MockSlide.cs" />
     <Compile Include="Models\Settings.cs" />
+    <Compile Include="Models\TildaAudio.cs" />
     <Compile Include="Models\TildaPicture.cs" />
     <Compile Include="Models\TildaShape.cs" />
     <Compile Include="Models\OLE.cs" />
@@ -253,6 +254,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Ionic.Zip.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\Jplayer.swf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\js\lib\jquery.jplayer.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Web\js\lib\jquery.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Web\js\Presentation.js">
